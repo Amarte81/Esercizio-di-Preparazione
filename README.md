@@ -145,7 +145,7 @@ Se un monitor viene chiuso bruscamente (es. terminazione del processo, caduta de
 | **`ServerInquinamento.java`** | **Classe 1 (Server Centrale):** gestisce `ServerSocket`, contatori condivisi della media, `Semaphore(1, true)` FIFO e lista `CopyOnWriteArrayList` dei Monitor. **Zero attributi `static`**: ogni thread concorrente (`new Thread(() -> gestisciConnessione(socket))`) opera sull'istanza `this`. Input da console con `BufferedReader`. |
 | **`ClientSensore.java`** | **Classe 2 (Centralina Sensore):** genera random 80..100 ppm, invia dato su socket effimera e si sospende per 5 secondi. |
 | **`ClientMonitor.java`** | **Classe 3 (Monitor di Emergenza):** handshake persistente, ricezione allarmi push in tempo reale e formattazione a video. |
-| **`avvia_simulazione.bat`** | Script batch per la compilazione e l'avvio simultaneo a 5 finestre su Windows. |
+| **`avvia_simulazione.bat`** | Script batch per la compilazione e l'avvio simultaneo a 4 finestre su Windows (1 Server, 1 Monitor, 2 Centraline). |
 | **`index.html`** | Applicazione web 16:9 con slide didattiche e simulatore animato interattivo con controlli di velocità (pubblicata su GitHub Pages). |
 | **`Esercizio_Monitor_Inquinamento.md`** | Traccia formale da assegnare agli studenti con griglia dei requisiti e domande di verifica. |
 
@@ -168,9 +168,9 @@ avvia_simulazione.bat
 ```
 Lo script:
 1. Compila tutti i sorgenti con `javac -encoding UTF-8 *.java`.
-2. Apre una finestra per il **Server Inquinamento** (richiede l'inserimento della soglia, es. `88.5`).
-3. Avvia 2 istanze concorrenti di **ClientMonitor** (*Monitor-SalaControllo* e *Monitor-ProtezioneCivile*).
-4. Avvia 2 istanze concorrenti di **ClientSensore** (*Zona-Centro* e *Zona-Industriale*).
+2. Apre la Finestra 1 per il **Server Inquinamento** (richiede l'inserimento della soglia, es. `88.5`).
+3. Avvia la Finestra 2 per il **ClientMonitor** (*Monitor-Centrale*).
+4. Avvia le Finestre 3 e 4 per i 2 **ClientSensore** concorrenti (*Zona-Centro* e *Zona-Industriale*).
 
 ---
 
