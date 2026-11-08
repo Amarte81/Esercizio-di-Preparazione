@@ -932,162 +932,86 @@
       </section>
 
       <!-- =========================================================================
-           SLIDE 4: ARCHITETTURA DEL CODICE JAVA SENZA STATIC
+           SLIDE 4: ARCHITETTURA DEL CODICE JAVA A 3 CLASSI SENZA STATIC
            ========================================================================= -->
       <section class="slide" id="slide-4">
         <div class="slide-header">
-          <div class="slide-step-tag">Fase 4 • Codice Sorgente Java</div>
-          <h1 class="slide-title">Implementazione Java: OOP Pulita & Dependency Injection</h1>
-          <p class="slide-desc">Esame dettagliato delle classi che compongono la soluzione. Nessun attributo di classe <code>static</code>.</p>
+          <div class="slide-step-tag">Fase 4 • Codice Sorgente Java (3 Classi)</div>
+          <h1 class="slide-title">Architettura Compatta a 3 Classi: Zero Attributi <code>static</code></h1>
+          <p class="slide-desc">Soluzione completa in sole 3 classi (<code>ServerInquinamento</code>, <code>ClientSensore</code>, <code>ClientMonitor</code>) usando <code>BufferedReader</code> e attributi d'istanza.</p>
         </div>
 
         <div style="display:flex; flex-direction:column; flex:1; gap:12px;">
           <!-- Barra delle Tab dei File -->
           <div class="code-tabs">
-            <button class="code-tab active" onclick="switchCodeTab('registro')">1. RegistroInquinamento.java</button>
-            <button class="code-tab" onclick="switchCodeTab('gestore')">2. GestoreClient.java</button>
-            <button class="code-tab" onclick="switchCodeTab('server')">3. ServerInquinamento.java</button>
-            <button class="code-tab" onclick="switchCodeTab('sensore')">4. ClientSensore.java</button>
-            <button class="code-tab" onclick="switchCodeTab('monitor')">5. ClientMonitor.java</button>
-            <button class="code-tab" onclick="switchCodeTab('focus-monitor')" style="color:#c084fc; border-color:rgba(192,132,252,0.4); font-weight:700;">🔍 6. Focus: Registrazione Dinamica Monitor</button>
+            <button class="code-tab active" onclick="switchCodeTab('server')">1. ServerInquinamento.java (Server + Stato + Semaforo)</button>
+            <button class="code-tab" onclick="switchCodeTab('sensore')">2. ClientSensore.java (Centralina)</button>
+            <button class="code-tab" onclick="switchCodeTab('monitor')">3. ClientMonitor.java (Monitor)</button>
+            <button class="code-tab" onclick="switchCodeTab('focus-monitor')" style="color:#c084fc; border-color:rgba(192,132,252,0.4); font-weight:700;">🔍 4. Focus: Registrazione Dinamica Monitor</button>
           </div>
 
-          <!-- Pannello Codice 1: Registro -->
-          <div id="code-panel-registro" class="code-panel">
+          <!-- Pannello Codice 1: ServerInquinamento -->
+          <div id="code-panel-server" class="code-panel">
             <pre class="code-block"><code><span class="code-comment">/**
- * Gestisce lo stato condiviso del sistema in modo concorrente.
- * VINCOLO SODDISFATTO: Nessun attributo statico!
+ * CLASSE 1: ServerInquinamento
+ * Incapsula ServerSocket, contatori condivisi, Semaforo e lista Monitor senza attributi static!
  */</span>
-<span class="code-kw">public class</span> <span class="code-type">RegistroInquinamento</span> {
-
-    <span class="code-kw">private int</span> numeroRilevazioni;
-    <span class="code-kw">private long</span> sommaRilevazioni;
-    <span class="code-kw">private double</span> mediaCorrente;
-    <span class="code-kw">private final double</span> sogliaMassima;
-
-    <span class="code-comment">// Semaforo binario FIFO per mutua esclusione</span>
-    <span class="code-kw">private final</span> <span class="code-type">Semaphore</span> semaforo;
-
-    <span class="code-comment">// Lista thread-safe per gestire le connessioni dei monitor registrati</span>
-    <span class="code-kw">private final</span> <span class="code-type">List</span>&lt;<span class="code-type">PrintWriter</span>&gt; monitorConnessi;
-
-    <span class="code-kw">public</span> <span class="code-type">RegistroInquinamento</span>(<span class="code-type">double</span> sogliaMassima) {
-        <span class="code-kw">this</span>.sogliaMassima = sogliaMassima;
-        <span class="code-kw">this</span>.numeroRilevazioni = 0;
-        <span class="code-kw">this</span>.sommaRilevazioni = 0;
-        <span class="code-kw">this</span>.mediaCorrente = 0.0;
-        <span class="code-kw">this</span>.semaforo = <span class="code-kw">new</span> <span class="code-type">Semaphore</span>(1, <span class="code-kw">true</span>);
-        <span class="code-kw">this</span>.monitorConnessi = <span class="code-kw">new</span> <span class="code-type">CopyOnWriteArrayList</span>&lt;&gt;();
-    }
-
-    <span class="code-kw">public</span> <span class="code-type">EsitoAggiornamento</span> registraRilevazione(<span class="code-type">int</span> valore) <span class="code-kw">throws</span> <span class="code-type">InterruptedException</span> {
-        <span class="code-type">boolean</span> allarmeAttivo = <span class="code-kw">false</span>;
-        <span class="code-type">double</span> mediaCalcolata = 0.0;
-        <span class="code-type">int</span> conteggioAttuale = 0;
-
-        <span class="code-comment">// SEZIONE CRITICA PROTETTA DAL SEMAFORO</span>
-        semaforo.acquire();
-        <span class="code-kw">try</span> {
-            <span class="code-kw">this</span>.numeroRilevazioni++;
-            <span class="code-kw">this</span>.sommaRilevazioni += valore;
-            <span class="code-kw">this</span>.mediaCorrente = (<span class="code-type">double</span>) <span class="code-kw">this</span>.sommaRilevazioni / <span class="code-kw">this</span>.numeroRilevazioni;
-
-            mediaCalcolata = <span class="code-kw">this</span>.mediaCorrente;
-            conteggioAttuale = <span class="code-kw">this</span>.numeroRilevazioni;
-            allarmeAttivo = (<span class="code-kw">this</span>.mediaCorrente &gt; <span class="code-kw">this</span>.sogliaMassima);
-        } <span class="code-kw">finally</span> {
-            semaforo.release(); <span class="code-comment">// Sempre rilasciato!</span>
-        }
-
-        <span class="code-type">EsitoAggiornamento</span> esito = <span class="code-kw">new</span> <span class="code-type">EsitoAggiornamento</span>(valore, conteggioAttuale, mediaCalcolata, sogliaMassima, allarmeAttivo);
-
-        <span class="code-comment">// Notifica ai monitor FUORI dal semaforo per non bloccare altri sensori</span>
-        <span class="code-kw">if</span> (allarmeAttivo) {
-            inviaNotificaAllarme(esito);
-        }
-        <span class="code-kw">return</span> esito;
-    }
-    <span class="code-comment">// ... metodi aggiungiMonitor, rimuoviMonitor, inviaNotificaAllarme ...</span>
-}</code></pre>
-          </div>
-
-          <!-- Pannello Codice 2: GestoreClient -->
-          <div id="code-panel-gestore" class="code-panel" style="display:none;">
-            <pre class="code-block"><code><span class="code-comment">// GestoreClient: discrimina SENSOR da MONITOR e gestisce il protocollo</span>
-<span class="code-kw">public class</span> <span class="code-type">GestoreClient</span> <span class="code-kw">implements</span> <span class="code-type">Runnable</span> {
-    <span class="code-kw">private final</span> <span class="code-type">Socket</span> socket;
-    <span class="code-kw">private final</span> <span class="code-type">RegistroInquinamento</span> registro;
-
-    <span class="code-kw">public</span> GestoreClient(<span class="code-type">Socket</span> socket, <span class="code-type">RegistroInquinamento</span> registro) {
-        <span class="code-kw">this</span>.socket = socket;
-        <span class="code-kw">this</span>.registro = registro;
-    }
-
-    <span class="code-kw">public void</span> run() {
-        <span class="code-kw">try</span> (
-            <span class="code-type">BufferedReader</span> in = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(socket.getInputStream()));
-            <span class="code-type">PrintWriter</span> out = <span class="code-kw">new</span> <span class="code-type">PrintWriter</span>(socket.getOutputStream(), <span class="code-kw">true</span>)
-        ) {
-            <span class="code-type">String</span> primaLinea = in.readLine();
-            <span class="code-kw">if</span> (primaLinea.startsWith(<span class="code-str">"SENSOR:"</span>)) {
-                <span class="code-type">int</span> valore = Integer.parseInt(primaLinea.substring(7).trim());
-                <span class="code-type">RegistroInquinamento.EsitoAggiornamento</span> esito = registro.registraRilevazione(valore);
-                out.println(<span class="code-str">"ACK: Ricevuto | Media="</span> + esito.getMedia() + <span class="code-str">" | Allarme="</span> + esito.isAllarme());
-                <span class="code-comment">// Connessione sensore chiusa subito al termine del blocco try</span>
-            } <span class="code-kw">else if</span> (primaLinea.equalsIgnoreCase(<span class="code-str">"MONITOR"</span>)) {
-                registro.aggiungiMonitor(out);
-                out.println(<span class="code-str">"OK: Monitor registrato"</span>);
-                <span class="code-comment">// Ciclo bloccante per mantenere aperta la connessione del monitor</span>
-                <span class="code-type">String</span> dummy;
-                <span class="code-kw">while</span> ((dummy = in.readLine()) != <span class="code-kw">null</span>) { }
-            }
-        } <span class="code-kw">catch</span> (<span class="code-type">Exception</span> e) { ... }
-    }
-}</code></pre>
-          </div>
-
-          <!-- Pannello Codice 3: ServerInquinamento -->
-          <div id="code-panel-server" class="code-panel" style="display:none;">
-            <pre class="code-block"><code><span class="code-comment">// Server Inquinamento: avvia ServerSocket e passa l'istanza condivisa a ciascun gestore</span>
 <span class="code-kw">public class</span> <span class="code-type">ServerInquinamento</span> {
     <span class="code-kw">private final int</span> porta;
     <span class="code-kw">private final double</span> sogliaMassima;
-    <span class="code-kw">private final</span> <span class="code-type">RegistroInquinamento</span> registro;
+    <span class="code-kw">private int</span> numeroRilevazioni = 0;
+    <span class="code-kw">private long</span> sommaRilevazioni = 0;
+    <span class="code-kw">private double</span> mediaCorrente = 0.0;
+    <span class="code-kw">private final</span> <span class="code-type">Semaphore</span> semaforo = <span class="code-kw">new</span> <span class="code-type">Semaphore</span>(1, <span class="code-kw">true</span>);
+    <span class="code-kw">private final</span> <span class="code-type">List</span>&lt;<span class="code-type">PrintWriter</span>&gt; monitorConnessi = <span class="code-kw">new</span> <span class="code-type">CopyOnWriteArrayList</span>&lt;&gt;();
 
     <span class="code-kw">public</span> ServerInquinamento(<span class="code-type">int</span> porta, <span class="code-type">double</span> sogliaMassima) {
         <span class="code-kw">this</span>.porta = porta;
         <span class="code-kw">this</span>.sogliaMassima = sogliaMassima;
-        <span class="code-kw">this</span>.registro = <span class="code-kw">new</span> <span class="code-type">RegistroInquinamento</span>(sogliaMassima);
     }
 
     <span class="code-kw">public void</span> avvia() {
         <span class="code-kw">try</span> (<span class="code-type">ServerSocket</span> serverSocket = <span class="code-kw">new</span> <span class="code-type">ServerSocket</span>(porta)) {
             <span class="code-kw">while</span> (<span class="code-kw">true</span>) {
                 <span class="code-type">Socket</span> clientSocket = serverSocket.accept();
-                <span class="code-kw">new</span> <span class="code-type">Thread</span>(<span class="code-kw">new</span> <span class="code-type">GestoreClient</span>(clientSocket, <span class="code-kw">this</span>.registro)).start();
+                <span class="code-comment">// Ogni thread invoca il metodo d'istanza gestisciConnessione sull'oggetto corrente (this)</span>
+                <span class="code-kw">new</span> <span class="code-type">Thread</span>(() -&gt; gestisciConnessione(clientSocket)).start();
             }
         } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) { ... }
     }
 
-    <span class="code-kw">public static void</span> main(<span class="code-type">String</span>[] args) {
-        <span class="code-comment">// Lettura input con BufferedReader (nessun uso di Scanner per coerenza di I/O)</span>
-        <span class="code-type">BufferedReader</span> lettore = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(System.in));
-        System.out.print(<span class="code-str">"Inserisci soglia massima [80..100]: "</span>);
+    <span class="code-kw">private void</span> gestisciSensore(<span class="code-type">String</span> linea, <span class="code-type">PrintWriter</span> out, <span class="code-type">String</span> info) <span class="code-kw">throws</span> <span class="code-type">InterruptedException</span> {
+        <span class="code-type">int</span> valore = Integer.parseInt(linea.substring(7).trim());
+        <span class="code-type">double</span> mediaCalcolata; <span class="code-type">boolean</span> allarme;
+
+        semaforo.acquire(); <span class="code-comment">// INIZIO SEZIONE CRITICA</span>
         <span class="code-kw">try</span> {
-            <span class="code-type">String</span> linea = lettore.readLine();
-            <span class="code-kw">double</span> soglia = Double.parseDouble(linea.trim());
-            <span class="code-kw">new</span> <span class="code-type">ServerInquinamento</span>(8080, soglia).avvia();
-        } <span class="code-kw">catch</span> (<span class="code-type">Exception</span> e) { ... }
+            <span class="code-kw">this</span>.numeroRilevazioni++;
+            <span class="code-kw">this</span>.sommaRilevazioni += valore;
+            <span class="code-kw">this</span>.mediaCorrente = (<span class="code-type">double</span>) <span class="code-kw">this</span>.sommaRilevazioni / <span class="code-kw">this</span>.numeroRilevazioni;
+            mediaCalcolata = <span class="code-kw">this</span>.mediaCorrente;
+            allarme = (mediaCalcolata &gt; <span class="code-kw">this</span>.sogliaMassima);
+        } <span class="code-kw">finally</span> {
+            semaforo.release(); <span class="code-comment">// RILASCIO IMMEDIATO DEL SEMAFORO</span>
+        }
+        <span class="code-kw">if</span> (allarme) inviaNotificaAllarme(valore, mediaCalcolata); <span class="code-comment">// Broadcast fuori dal semaforo!</span>
+        out.println(<span class="code-str">"ACK: Media="</span> + mediaCalcolata + <span class="code-str">" | Allarme="</span> + allarme);
+    }
+
+    <span class="code-kw">public static void</span> main(<span class="code-type">String</span>[] args) <span class="code-kw">throws</span> <span class="code-type">Exception</span> {
+        <span class="code-type">BufferedReader</span> lettore = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(System.in));
+        <span class="code-kw">double</span> soglia = Double.parseDouble(lettore.readLine().trim());
+        <span class="code-kw">new</span> <span class="code-type">ServerInquinamento</span>(8080, soglia).avvia();
     }
 }</code></pre>
-            <div class="highlight-box" style="margin-top:10px;">
-              💡 <strong>Scelta di I/O (Nessun uso di <code>Scanner</code>)</strong>: l'applicazione usa uniformemente <code>BufferedReader</code> sia per i socket sia per la console (<code>System.in</code>), prevenendo i bug di buffer newline tipici di <code>Scanner.nextInt()</code>.
+            <div class="highlight-box" style="margin-top:8px;">
+              💡 <strong>Come evitare classi extra e variabili <code>static</code>?</strong> Tutti i contatori e il semaforo sono attributi d'istanza di <code>ServerInquinamento</code>. Con <code>new Thread(() -&gt; gestisciConnessione(clientSocket)).start()</code> ogni thread concorrente opera direttamente sull'istanza <code>this</code> del server!
             </div>
           </div>
 
-          <!-- Pannello Codice 4: ClientSensore -->
+          <!-- Pannello Codice 2: ClientSensore -->
           <div id="code-panel-sensore" class="code-panel" style="display:none;">
-            <pre class="code-block"><code><span class="code-comment">// Client Sensore: loop infinito con generazione [80, 100], invio e sleep 5s</span>
+            <pre class="code-block"><code><span class="code-comment">// CLASSE 2: ClientSensore (Simula le centraline periferiche con ciclo di 5s)</span>
 <span class="code-kw">public class</span> <span class="code-type">ClientSensore</span> {
     <span class="code-kw">private final String</span> host;
     <span class="code-kw">private final int</span> porta;
@@ -1112,9 +1036,9 @@
 }</code></pre>
           </div>
 
-          <!-- Pannello Codice 5: ClientMonitor -->
+          <!-- Pannello Codice 3: ClientMonitor -->
           <div id="code-panel-monitor" class="code-panel" style="display:none;">
-            <pre class="code-block"><code><span class="code-comment">// Client Monitor: apre la socket, invia "MONITOR" e resta in ascolto passivo</span>
+            <pre class="code-block"><code><span class="code-comment">// CLASSE 3: ClientMonitor (Apre la socket, invia "MONITOR" e resta in ascolto passivo)</span>
 <span class="code-kw">public class</span> <span class="code-type">ClientMonitor</span> {
     <span class="code-kw">public void</span> avvia() {
         <span class="code-kw">try</span> (
@@ -1132,7 +1056,9 @@
         } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) { ... }
     }
 }</code></pre>
-          <!-- Pannello 6: Focus Registrazione Dinamica Monitor -->
+          </div>
+
+          <!-- Pannello 4: Focus Registrazione Dinamica Monitor -->
           <div id="code-panel-focus-monitor" class="code-panel" style="display:none; overflow-y:auto; max-height:480px; padding:4px;">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
               
@@ -1147,7 +1073,7 @@
                       <strong style="color:#38bdf8;">1. Handshake Iniziale:</strong> Il client apre socket su porta 8080 e invia <code>"MONITOR\n"</code>. Il server riconosce il ruolo persistente.
                     </li>
                     <li>
-                      <strong style="color:#38bdf8;">2. Iscrizione Thread-Safe:</strong> Lo stream <code>PrintWriter out</code> viene memorizzato in <code>registro.aggiungiMonitor(out)</code>.
+                      <strong style="color:#38bdf8;">2. Iscrizione Thread-Safe:</strong> Lo stream <code>PrintWriter out</code> viene aggiunto a <code>this.monitorConnessi.add(out)</code> in <code>ServerInquinamento</code>.
                     </li>
                     <li>
                       <strong style="color:#38bdf8;">3. Risposta di Benvenuto:</strong> Il server comunica la soglia attiva: <code>"OK: Registrazione monitor completata. Soglia: 88.0"</code>.
@@ -1159,7 +1085,7 @@
                       <strong style="color:#38bdf8;">5. Notifica Push Asincrona:</strong> All'allarme, il server itera sulla lista e invia il messaggio formattato a tutti i monitor connessi.
                     </li>
                     <li>
-                      <strong style="color:#38bdf8;">6. Deregistrazione Automatica:</strong> Se il monitor cade o si chiude, il blocco <code>finally</code> esegue <code>registro.rimuoviMonitor(out)</code>.
+                      <strong style="color:#38bdf8;">6. Deregistrazione Automatica:</strong> Se il monitor cade o si chiude, il blocco <code>finally</code> esegue <code>monitorConnessi.remove(out)</code>.
                     </li>
                   </ol>
                 </div>
@@ -1186,8 +1112,8 @@
 
                 <div class="card" style="background:#090d16; border-color:#334155; padding:10px;">
                   <span style="font-size:0.75rem; color:#94a3b8; font-family:monospace;">
-                    // Stralcio RegistroInquinamento.java:<br>
-                    <span class="code-kw">public void</span> inviaNotificaAllarme(Esito esito) {<br>
+                    // Metodo privato di ServerInquinamento.java:<br>
+                    <span class="code-kw">private void</span> inviaNotificaAllarme(<span class="code-type">int</span> val, <span class="code-type">int</span> n, <span class="code-type">double</span> media) {<br>
                     &nbsp;&nbsp;<span class="code-kw">for</span> (PrintWriter out : monitorConnessi) {<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">try</span> { out.println(msg); out.flush(); }<br>
                     &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">catch</span> (Exception e) { monitorConnessi.remove(out); }<br>

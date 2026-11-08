@@ -53,9 +53,9 @@ Il server centrale coordina l'intera infrastruttura:
 
 ## Vincoli di Progettazione e Sviluppo
 1. **Linguaggio**: Java (Standard Edition).
-2. **Architettura OOP pulita**:
-   - **TASSATIVO**: **Evitare attributi `static`** per lo stato del server, i contatori, il semaforo o la lista dei monitor.
-   - Creare una classe dedicata (es. `RegistroInquinamento` o `StatoCondiviso`) che incapsuli i contatori, il semaforo e i metodi sincronizzati, passata per riferimento (Dependency Injection) ai gestori dei thread.
+2. **Architettura OOP pulita a 3 Classi**:
+   - Strutturare il progetto in sole **3 classi** principali: `ServerInquinamento`, `ClientSensore` e `ClientMonitor`.
+   - **TASSATIVO**: **Evitare attributi `static`** per lo stato del server, i contatori, il semaforo o la lista dei monitor. Tutti i dati devono essere attributi d'istanza dell'oggetto `ServerInquinamento`, condivisi tra i thread concorrenti invocando metodi d'istanza (`new Thread(() -> gestisciConnessione(socket)).start()`).
    - L'unico metodo `static` consentito è `public static void main(String[] args)` come punto di ingresso per avviare l'oggetto applicativo.
 3. **Robustezza**:
    - Chiusura corretta dei flussi (`BufferedReader`, `PrintWriter`, `Socket`) mediante costrutti try-with-resources o blocchi finally.

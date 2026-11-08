@@ -138,15 +138,13 @@ Se un monitor viene chiuso bruscamente (es. terminazione del processo, caduta de
 
 ---
 
-## 📁 Struttura dei File del Progetto
+## 📁 Struttura dei File del Progetto (Architettura Compatta a 3 Classi)
 
 | File | Ruolo / Descrizione |
 | :--- | :--- |
-| **`RegistroInquinamento.java`** | Stato condiviso thread-safe: semaforo FIFO, contatori media, lista monitor dinamica. Zero attributi `static`. |
-| **`GestoreClient.java`** | Worker thread: gestisce il protocollo applicativo discriminando tra `SENSOR` e `MONITOR`. |
-| **`ServerInquinamento.java`** | Server socket principale: validazione input soglia con `BufferedReader` (nessun uso di `Scanner`) e ciclo infinito `accept()`. |
-| **`ClientSensore.java`** | Client periodico: genera random 80..100 ppm, invia dato su socket effimera e si sospende 5s. |
-| **`ClientMonitor.java`** | Client di supervisione: handshake persistente, ricezione allarmi push e formattazione a video. |
+| **`ServerInquinamento.java`** | **Classe 1 (Server Centrale):** gestisce `ServerSocket`, contatori condivisi della media, `Semaphore(1, true)` FIFO e lista `CopyOnWriteArrayList` dei Monitor. **Zero attributi `static`**: ogni thread concorrente (`new Thread(() -> gestisciConnessione(socket))`) opera sull'istanza `this`. Input da console con `BufferedReader`. |
+| **`ClientSensore.java`** | **Classe 2 (Centralina Sensore):** genera random 80..100 ppm, invia dato su socket effimera e si sospende per 5 secondi. |
+| **`ClientMonitor.java`** | **Classe 3 (Monitor di Emergenza):** handshake persistente, ricezione allarmi push in tempo reale e formattazione a video. |
 | **`avvia_simulazione.bat`** | Script batch per la compilazione e l'avvio simultaneo a 5 finestre su Windows. |
 | **`presentazione_inquinamento_16_9.html`** | Applicazione web 16:9 con slide didattiche e simulatore animato interattivo con controlli di velocità. |
 | **`Esercizio_Monitor_Inquinamento.md`** | Traccia formale da assegnare agli studenti con griglia dei requisiti e domande di verifica. |
