@@ -949,6 +949,7 @@
             <button class="code-tab" onclick="switchCodeTab('server')">3. ServerInquinamento.java</button>
             <button class="code-tab" onclick="switchCodeTab('sensore')">4. ClientSensore.java</button>
             <button class="code-tab" onclick="switchCodeTab('monitor')">5. ClientMonitor.java</button>
+            <button class="code-tab" onclick="switchCodeTab('focus-monitor')" style="color:#c084fc; border-color:rgba(192,132,252,0.4); font-weight:700;">🔍 6. Focus: Registrazione Dinamica Monitor</button>
           </div>
 
           <!-- Pannello Codice 1: Registro -->
@@ -1123,6 +1124,73 @@
         } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) { ... }
     }
 }</code></pre>
+          <!-- Pannello 6: Focus Registrazione Dinamica Monitor -->
+          <div id="code-panel-focus-monitor" class="code-panel" style="display:none; overflow-y:auto; max-height:480px; padding:4px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              
+              <!-- Colonna Sinistra: Fasi del Ciclo di Vita -->
+              <div class="card" style="background:#090d16; border-color:#a855f7;">
+                <div class="card-title" style="color:#c084fc;">
+                  <span>🔄 Il Ciclo di Vita della Registrazione Dinamica</span>
+                </div>
+                <div class="card-body" style="font-size:0.83rem;">
+                  <ol style="padding-left:16px; margin:4px 0; display:flex; flex-direction:column; gap:8px;">
+                    <li>
+                      <strong style="color:#38bdf8;">1. Handshake Iniziale:</strong> Il client apre socket su porta 8080 e invia <code>"MONITOR\n"</code>. Il server riconosce il ruolo persistente.
+                    </li>
+                    <li>
+                      <strong style="color:#38bdf8;">2. Iscrizione Thread-Safe:</strong> Lo stream <code>PrintWriter out</code> viene memorizzato in <code>registro.aggiungiMonitor(out)</code>.
+                    </li>
+                    <li>
+                      <strong style="color:#38bdf8;">3. Risposta di Benvenuto:</strong> Il server comunica la soglia attiva: <code>"OK: Registrazione monitor completata. Soglia: 88.0"</code>.
+                    </li>
+                    <li>
+                      <strong style="color:#38bdf8;">4. Connessione Persistente (Long-Lived):</strong> Il thread del server rimane bloccato su <code>in.readLine()</code> in attesa passiva (stato WAITING a zero consumo CPU).
+                    </li>
+                    <li>
+                      <strong style="color:#38bdf8;">5. Notifica Push Asincrona:</strong> All'allarme, il server itera sulla lista e invia il messaggio formattato a tutti i monitor connessi.
+                    </li>
+                    <li>
+                      <strong style="color:#38bdf8;">6. Deregistrazione Automatica:</strong> Se il monitor cade o si chiude, il blocco <code>finally</code> esegue <code>registro.rimuoviMonitor(out)</code>.
+                    </li>
+                  </ol>
+                </div>
+              </div>
+
+              <!-- Colonna Destra: Decisioni Architetturali Fondamentali -->
+              <div style="display:flex; flex-direction:column; gap:14px;">
+                
+                <div class="highlight-box" style="background:rgba(168,85,247,0.1); border-left:4px solid #a855f7;">
+                  <strong style="color:#c084fc; font-size:0.88rem;">🛡️ Perché CopyOnWriteArrayList invece di ArrayList?</strong>
+                  <p style="font-size:0.8rem; margin-top:4px; line-height:1.45;">
+                    In un server multithread, iterare su una normale <code>ArrayList</code> mentre un altro thread aggiunge o scollega un monitor provoca <code>ConcurrentModificationException</code>.<br>
+                    La <code>CopyOnWriteArrayList</code> garantisce che le notifiche broadcast iterino su uno <strong>snapshot immutabile</strong> lock-free senza mai andare in crash e senza bloccare le registrazioni.
+                  </p>
+                </div>
+
+                <div class="warning-box" style="background:rgba(245,158,11,0.1); border-left:4px solid #f59e0b;">
+                  <strong style="color:#fbbf24; font-size:0.88rem;">⚡ Notifiche Broadcast Rigorosamente FUORI dal Semaforo</strong>
+                  <p style="font-size:0.8rem; margin-top:4px; line-height:1.45;">
+                    Il semaforo tutela <strong>solo</strong> l'aggiornamento dei contatori ($N$, somma, media) e viene subito rilasciato con <code>semaforo.release()</code>.<br>
+                    La trasmissione di rete avviene <strong>dopo</strong>: se avvenisse dentro il semaforo, un monitor lento (slow consumer) o disconnesso bloccherebbe la sezione critica, paralizzando tutti i sensori della città!
+                  </p>
+                </div>
+
+                <div class="card" style="background:#090d16; border-color:#334155; padding:10px;">
+                  <span style="font-size:0.75rem; color:#94a3b8; font-family:monospace;">
+                    // Stralcio RegistroInquinamento.java:<br>
+                    <span class="code-kw">public void</span> inviaNotificaAllarme(Esito esito) {<br>
+                    &nbsp;&nbsp;<span class="code-kw">for</span> (PrintWriter out : monitorConnessi) {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">try</span> { out.println(msg); out.flush(); }<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">catch</span> (Exception e) { monitorConnessi.remove(out); }<br>
+                    &nbsp;&nbsp;}<br>
+                    }
+                  </span>
+                </div>
+
+              </div>
+
+            </div>
           </div>
         </div>
       </section>
@@ -1164,9 +1232,17 @@
                 <strong style="color:#38bdf8;">2. Il Ruolo del Semaforo</strong>
                 <p style="font-size:0.83rem; color:#cbd5e1;">Cosa potrebbe succedere al valore della media e del contatore campioni se due thread eseguissero contemporaneamente l'operazione <code>somma += valore</code> senza semaforo?</p>
               </div>
-              <div>
+              <div style="margin-bottom:12px;">
                 <strong style="color:#38bdf8;">3. Architettura OOP vs Variabili Statiche</strong>
                 <p style="font-size:0.83rem; color:#cbd5e1;">Quali sono gli svantaggi di salvare le liste di socket o i semafori in campi <code>static</code> rispetto al passarli per riferimento tramite Dependency Injection?</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <strong style="color:#c084fc;">4. Registrazione Dinamica e CopyOnWriteArrayList</strong>
+                <p style="font-size:0.83rem; color:#cbd5e1;">Come funziona l'iscrizione dinamica dei monitor e perché l'uso di <code>CopyOnWriteArrayList</code> evita la <code>ConcurrentModificationException</code> durante il broadcast degli allarmi?</p>
+              </div>
+              <div>
+                <strong style="color:#fbbf24;">5. Notifiche Broadcast e Sezione Critica</strong>
+                <p style="font-size:0.83rem; color:#cbd5e1;">Perché la trasmissione delle notifiche ai monitor deve avvenire tassativamente all'esterno del blocco protetto dal Semaforo?</p>
               </div>
             </div>
           </div>
@@ -1262,11 +1338,13 @@
     });
 
     // Gestione Tab Codice
-    function switchCodeTab(tabId) {
+    function switchCodeTab(tabId, el) {
       document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.code-panel').forEach(p => p.style.display = 'none');
-      event.target.classList.add('active');
-      document.getElementById('code-panel-' + tabId).style.display = 'block';
+      const target = el || (typeof event !== 'undefined' && event && event.target) || document.querySelector('[onclick*="' + tabId + '"]');
+      if (target) target.classList.add('active');
+      const panel = document.getElementById('code-panel-' + tabId);
+      if (panel) panel.style.display = 'block';
     }
 
     // --- SIMULATORE ANIMATO DINAMICO ---
