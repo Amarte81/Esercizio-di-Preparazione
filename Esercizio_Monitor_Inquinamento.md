@@ -60,6 +60,8 @@ Il server centrale coordina l'intera infrastruttura:
 3. **Robustezza**:
    - Chiusura corretta dei flussi (`BufferedReader`, `PrintWriter`, `Socket`) mediante costrutti try-with-resources o blocchi finally.
    - Tolleranza alla disconnessione improvvisa di un monitor o di un sensore.
+4. **Flussi di I/O Uniformi (Nessun uso di `Scanner`)**:
+   - Per la lettura da tastiera e dai socket di rete utilizzare esclusivamente `BufferedReader` (con `InputStreamReader`), senza ricorrere alla classe `Scanner`. Ciò assicura coerenza strutturale nell'uso dei flussi a caratteri ed evita bug tipici di buffer residui (`\n`).
 
 ---
 
@@ -123,3 +125,4 @@ La deregistrazione di un monitor può avvenire in due modalità:
 3. Come funziona la registrazione dinamica dei Monitor e perché l'uso di `CopyOnWriteArrayList` previene le `ConcurrentModificationException`?
 4. Perché la trasmissione delle notifiche di allarme ai Monitor deve avvenire tassativamente fuori dalla sezione critica del Semaforo?
 5. Perché l'approccio Object-Oriented senza attributi `static` è preferibile per testabilità, modularità e manutenzione del software?
+6. Perché nell'architettura è preferibile usare `BufferedReader` con `System.in` invece di `Scanner`?

@@ -1070,11 +1070,19 @@
     }
 
     <span class="code-kw">public static void</span> main(<span class="code-type">String</span>[] args) {
-        <span class="code-comment">// Unico metodo static ammesso dalla JVM. Richiede soglia ed avvia l'oggetto Server</span>
-        <span class="code-kw">double</span> soglia = ...; <span class="code-comment">// input da tastiera [80, 100]</span>
-        <span class="code-kw">new</span> <span class="code-type">ServerInquinamento</span>(8080, soglia).avvia();
+        <span class="code-comment">// Lettura input con BufferedReader (nessun uso di Scanner per coerenza di I/O)</span>
+        <span class="code-type">BufferedReader</span> lettore = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(System.in));
+        System.out.print(<span class="code-str">"Inserisci soglia massima [80..100]: "</span>);
+        <span class="code-kw">try</span> {
+            <span class="code-type">String</span> linea = lettore.readLine();
+            <span class="code-kw">double</span> soglia = Double.parseDouble(linea.trim());
+            <span class="code-kw">new</span> <span class="code-type">ServerInquinamento</span>(8080, soglia).avvia();
+        } <span class="code-kw">catch</span> (<span class="code-type">Exception</span> e) { ... }
     }
 }</code></pre>
+            <div class="highlight-box" style="margin-top:10px;">
+              💡 <strong>Scelta di I/O (Nessun uso di <code>Scanner</code>)</strong>: l'applicazione usa uniformemente <code>BufferedReader</code> sia per i socket sia per la console (<code>System.in</code>), prevenendo i bug di buffer newline tipici di <code>Scanner.nextInt()</code>.
+            </div>
           </div>
 
           <!-- Pannello Codice 4: ClientSensore -->
@@ -1240,9 +1248,13 @@
                 <strong style="color:#c084fc;">4. Registrazione Dinamica e CopyOnWriteArrayList</strong>
                 <p style="font-size:0.83rem; color:#cbd5e1;">Come funziona l'iscrizione dinamica dei monitor e perché l'uso di <code>CopyOnWriteArrayList</code> evita la <code>ConcurrentModificationException</code> durante il broadcast degli allarmi?</p>
               </div>
-              <div>
+              <div style="margin-bottom:12px;">
                 <strong style="color:#fbbf24;">5. Notifiche Broadcast e Sezione Critica</strong>
                 <p style="font-size:0.83rem; color:#cbd5e1;">Perché la trasmissione delle notifiche ai monitor deve avvenire tassativamente all'esterno del blocco protetto dal Semaforo?</p>
+              </div>
+              <div>
+                <strong style="color:#38bdf8;">6. Flussi di I/O: BufferedReader vs Scanner</strong>
+                <p style="font-size:0.83rem; color:#cbd5e1;">Quali sono i vantaggi di utilizzare <code>BufferedReader</code> con <code>System.in</code> invece di <code>Scanner</code> nelle applicazioni di rete distribuite?</p>
               </div>
             </div>
           </div>

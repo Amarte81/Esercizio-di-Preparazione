@@ -1,13 +1,16 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 
 /**
  * Server Principale dell'applicazione di monitoraggio dell'inquinamento.
  * Accetta connessioni concorrenti da sensori e monitor.
  * 
  * VINCOLO SODDISFATTO: Nessun attributo statico.
+ * SCELTA DI I/O: Utilizzo di BufferedReader con System.in per uniformità con i flussi di rete,
+ * evitando la classe Scanner.
  */
 public class ServerInquinamento {
 
@@ -58,9 +61,10 @@ public class ServerInquinamento {
     /**
      * Entry point: unico metodo statico richiesto dalla JVM.
      * Richiede l'input all'utente ed istanzia l'oggetto server.
+     * Utilizza BufferedReader per la lettura da tastiera (System.in).
      */
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        BufferedReader lettoreTastiera = new BufferedReader(new InputStreamReader(System.in));
         int porta = 8080;
         double soglia = 0.0;
 
@@ -68,7 +72,11 @@ public class ServerInquinamento {
         while (true) {
             System.out.print("Inserisci la soglia massima consentita di inquinante (tra 80 e 100): ");
             try {
-                String input = scanner.nextLine().trim();
+                String input = lettoreTastiera.readLine();
+                if (input == null) {
+                    break;
+                }
+                input = input.trim();
                 soglia = Double.parseDouble(input);
                 if (soglia >= 80.0 && soglia <= 100.0) {
                     break;
@@ -77,6 +85,9 @@ public class ServerInquinamento {
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Valore non valido. Inserire un numero decimale (es. 88.5).");
+            } catch (IOException e) {
+                System.out.println("Errore di I/O durante la lettura da tastiera: " + e.getMessage());
+                break;
             }
         }
 

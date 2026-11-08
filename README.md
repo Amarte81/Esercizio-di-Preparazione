@@ -144,12 +144,20 @@ Se un monitor viene chiuso bruscamente (es. terminazione del processo, caduta de
 | :--- | :--- |
 | **`RegistroInquinamento.java`** | Stato condiviso thread-safe: semaforo FIFO, contatori media, lista monitor dinamica. Zero attributi `static`. |
 | **`GestoreClient.java`** | Worker thread: gestisce il protocollo applicativo discriminando tra `SENSOR` e `MONITOR`. |
-| **`ServerInquinamento.java`** | Server socket principale: validazione input soglia e ciclo infinito `accept()`. |
+| **`ServerInquinamento.java`** | Server socket principale: validazione input soglia con `BufferedReader` (nessun uso di `Scanner`) e ciclo infinito `accept()`. |
 | **`ClientSensore.java`** | Client periodico: genera random 80..100 ppm, invia dato su socket effimera e si sospende 5s. |
 | **`ClientMonitor.java`** | Client di supervisione: handshake persistente, ricezione allarmi push e formattazione a video. |
 | **`avvia_simulazione.bat`** | Script batch per la compilazione e l'avvio simultaneo a 5 finestre su Windows. |
 | **`presentazione_inquinamento_16_9.html`** | Applicazione web 16:9 con slide didattiche e simulatore animato interattivo con controlli di velocità. |
 | **`Esercizio_Monitor_Inquinamento.md`** | Traccia formale da assegnare agli studenti con griglia dei requisiti e domande di verifica. |
+
+---
+
+## 💡 Gestione Flussi di I/O: Perché `BufferedReader` al posto di `Scanner`?
+In tutti i file Java del progetto non viene utilizzata la classe `java.util.Scanner`, sostituita integralmente da `BufferedReader` avvolto su `InputStreamReader`:
+1. **Coerenza concettuale**: la stessa astrazione a caratteri bufferizzati viene usata sia per i canali TCP di rete (`socket.getInputStream()`) sia per la tastiera della console (`System.in`).
+2. **Prevenzione di bug di buffer**: `Scanner.nextInt()` e `Scanner.nextDouble()` non consumano il carattere di fine riga (`\n`), generando frequenti comportamenti anomali nelle letture successive. Con `BufferedReader.readLine()` ogni riga è letta in modo pulito e poi convertita (`Double.parseDouble()`).
+3. **Efficienza**: `BufferedReader` legge blocchi di caratteri in modo sincronizzato e lineare, senza il pesante parsing a espressioni regolari tipico di `Scanner`.
 
 ---
 
