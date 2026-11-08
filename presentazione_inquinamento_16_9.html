@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TPSIT: Sistema Distribuito Inquinamento e Monitor di Allarme</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --accent-cyan: #38bdf8;
+      --accent-green: #22c55e;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --code-bg: #090d16;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #030712;
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      padding: 10px;
+    }
+
+    /* Contenitore 16:9 Ottimizzato */
+    #deck-viewport {
+      width: 100%;
+      max-width: 1560px;
+      aspect-ratio: 16 / 9;
+      background-color: var(--bg-dark);
+      border: 1px solid #1e293b;
+      border-radius: 14px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(56, 189, 248, 0.1);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Modalità Schermo Intero */
+    :fullscreen #deck-viewport,
+    :-webkit-full-screen #deck-viewport {
+      width: 100vw;
+      height: 100vh;
+      max-width: none;
+      border-radius: 0;
+      border: none;
+      aspect-ratio: auto;
+    }
+
+    /* Barra Superiore */
+    header.deck-header {
+      height: 60px;
+      background: rgba(15, 23, 42, 0.95);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 100;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-badge {
+      font-size: 0.75rem;
+      background: #1e293b;
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      -webkit-text-fill-color: #38bdf8;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--accent-red);
+      color: #fca5a5;
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.4);
+    }
+
+    /* Container Slide */
+    .slides-wrapper {
+      flex: 1;
+      position: relative;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .slide {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Intestazione Slide */
+    .slide-header {
+      margin-bottom: 18px;
+    }
+
+    .slide-step-tag {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-cyan);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .slide-title {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slide-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    /* Layout a Colonne */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .card-body {
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+      overflow-y: auto;
+    }
+
+    .card-body ul {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+
+    .card-body li {
+      margin-bottom: 6px;
+    }
+
+    /* Badge & Alert Box */
+    .highlight-box {
+      background: rgba(56, 189, 248, 0.08);
+      border-left: 4px solid var(--accent-cyan);
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.88rem;
+    }
+
+    .warning-box {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 4px solid var(--accent-amber);
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.88rem;
+    }
+
+    .danger-box {
+      background: rgba(239, 68, 68, 0.12);
+      border-left: 4px solid var(--accent-red);
+      padding: 12px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.88rem;
+    }
+
+    /* Tab per codice */
+    .code-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 6px;
+    }
+
+    .code-tab {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .code-tab.active {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      color: var(--accent-cyan);
+    }
+
+    pre.code-block {
+      background: var(--code-bg);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      color: #e2e8f0;
+      overflow: auto;
+      max-height: 480px;
+    }
+
+    .code-kw { color: #f43f5e; font-weight: bold; }
+    .code-type { color: #38bdf8; font-weight: bold; }
+    .code-str { color: #34d399; }
+    .code-comment { color: #64748b; font-style: italic; }
+    .code-var { color: #fbbf24; }
+
+    /* Barra Navigazione Inferiore */
+    footer.deck-footer {
+      height: 56px;
+      background: rgba(15, 23, 42, 0.95);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 100;
+    }
+
+    .step-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .step-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border-color);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .step-dot.active {
+      background: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
+      transform: scale(1.2);
+    }
+
+    /* -------------------------------------------------------------------------
+       STILI SIMULATORE ANIMATO (SLIDE 3)
+       ------------------------------------------------------------------------- */
+    .sim-arena {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 16px;
+      background: #090e1a;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sim-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      background: #111827;
+      border: 1px solid #1f2937;
+      padding: 10px 14px;
+      border-radius: 8px;
+    }
+
+    .sim-toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sim-board {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      gap: 20px;
+      align-items: stretch;
+      flex: 1;
+      position: relative;
+    }
+
+    /* Colonne Nodi */
+    .node-col {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 10;
+    }
+
+    .sim-node-card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .sim-node-card.sensor {
+      border-left: 4px solid var(--accent-cyan);
+    }
+
+    .sim-node-card.server {
+      border: 2px solid #38bdf8;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+      background: #132238;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .sim-node-card.monitor {
+      border-left: 4px solid var(--accent-purple);
+    }
+
+    .sim-node-card.alarm-active {
+      border-color: var(--accent-red) !important;
+      animation: pulseAlert 1s infinite alternate;
+    }
+
+    @keyframes pulseAlert {
+      0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.3); }
+      100% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); }
+    }
+
+    .node-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .status-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge.idle { background: #334155; color: #cbd5e1; }
+    .status-badge.connecting { background: #d97706; color: #fff; }
+    .status-badge.sending { background: #0284c7; color: #fff; }
+    .status-badge.listening { background: #166534; color: #86efac; }
+    .status-badge.alarm { background: #dc2626; color: #fff; }
+
+    /* Semaforo Grafico */
+    .semaphore-display {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sem-lights {
+      display: flex;
+      gap: 8px;
+      background: #000;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid #334155;
+    }
+
+    .sem-light {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #27272a;
+      transition: all 0.2s ease;
+    }
+
+    .sem-light.red.active {
+      background: #ef4444;
+      box-shadow: 0 0 12px #ef4444;
+    }
+
+    .sem-light.green.active {
+      background: #22c55e;
+      box-shadow: 0 0 12px #22c55e;
+    }
+
+    /* Metriche Server */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+
+    .metric-cell {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .metric-lbl {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .metric-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .metric-val.alarm {
+      color: var(--accent-red);
+    }
+
+    /* Gauge della Soglia */
+    .gauge-container {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .gauge-bar-bg {
+      height: 14px;
+      background: #1e293b;
+      border-radius: 7px;
+      position: relative;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .gauge-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #f59e0b, #ef4444);
+      transition: width 0.4s ease;
+    }
+
+    .gauge-threshold-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: #ffffff;
+      box-shadow: 0 0 6px #fff;
+      z-index: 5;
+    }
+
+    /* Event Log Canvas */
+    .sim-log-panel {
+      height: 80px;
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: monospace;
+      font-size: 0.78rem;
+      overflow-y: auto;
+      color: #94a3b8;
+    }
+
+    .log-line {
+      margin-bottom: 2px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .log-time { color: #64748b; }
+    .log-alarm { color: #f87171; font-weight: bold; }
+    .log-sem { color: #38bdf8; }
+    .log-info { color: #e2e8f0; }
+
+    /* Canvas animazione pacchetti di rete */
+    #packet-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 20;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- VIEWPORT 16:9 PRINCIPALE -->
+  <div id="deck-viewport">
+
+    <!-- HEADER FISSO -->
+    <header class="deck-header">
+      <div class="brand-title">
+        <span>🌐 TPSIT: ARCHITETTURE DISTRIBUITE</span>
+        <span class="brand-badge">SISTEMA CON MONITOR & SEMAFORI</span>
+      </div>
+
+      <div class="header-controls">
+        <button class="btn" id="btn-prev" onclick="prevSlide()">◀ Precedente</button>
+        <span id="slide-indicator" style="font-size:0.85rem; font-weight:700; color:#38bdf8; min-width:60px; text-align:center;">1 / 5</span>
+        <button class="btn btn-primary" id="btn-next" onclick="nextSlide()">Successivo ▶</button>
+        <button class="btn" id="btn-fullscreen" onclick="toggleFullscreen()">⛶ Schermo Intero (F)</button>
+      </div>
+    </header>
+
+    <!-- WRAPPER DELLE SLIDE -->
+    <main class="slides-wrapper">
+
+      <!-- =========================================================================
+           SLIDE 1: TESTO DELL'ESERCIZIO & SPECIFICHE ARCHITETTURALI
+           ========================================================================= -->
+      <section class="slide active" id="slide-1">
+        <div class="slide-header">
+          <div class="slide-step-tag">Fase 1 • Traccia & Obiettivi</div>
+          <h1 class="slide-title">Traccia dell'Esercizio: Sistema Inquinamento con Monitor</h1>
+          <p class="slide-desc">Estensione dell'architettura Client-Server concorrente con stazioni di notifica emergenze (Monitor).</p>
+        </div>
+
+        <div class="grid-3col">
+          <!-- Colonna 1: Client Sensore -->
+          <div class="card">
+            <div class="card-title">📡 1. Client Sensore (Centraline)</div>
+            <div class="card-body">
+              <p>Rappresenta stazioni di rilevamento distribuite sul territorio:</p>
+              <ul>
+                <li><strong>Generazione dato</strong>: genera un intero casuale tra <strong>80 e 100 ppm</strong>.</li>
+                <li><strong>Connessione breve (Short-lived)</strong>: apre la connessione TCP solo per inviare il dato (<code>SENSOR:&lt;val&gt;</code>).</li>
+                <li><strong>Chiusura e riposo</strong>: riceve l'ACK dal server, chiude la socket e si sospende per <strong>5 secondi</strong> prima del ciclo successivo.</li>
+                <li><strong>Esecuzione concorrente</strong>: molteplici client operano in parallelo senza conoscersi.</li>
+              </ul>
+              <div class="highlight-box">
+                💡 <em>Ogni risveglio genera una nuova connessione socket verso il server.</em>
+              </div>
+            </div>
+          </div>
+
+          <!-- Colonna 2: Server Centrale -->
+          <div class="card">
+            <div class="card-title">🖥️ 2. Server Centrale & Concorrenza</div>
+            <div class="card-body">
+              <p>Coordina l'aggregazione dei dati e arbitra l'accesso alle risorse condivise:</p>
+              <ul>
+                <li><strong>Soglia dinamica</strong>: inserita dall'utente all'avvio (tra 80 e 100 ppm).</li>
+                <li><strong>Server concorrente multithread</strong>: accetta infinite connessioni e istanzia un thread dedicato per ciascuna.</li>
+                <li><strong>Semaforo di mutua esclusione</strong>: protegge l'aggiornamento di somma, numero campioni e calcolo media.</li>
+                <li><strong>Rilevazione allarme</strong>: se la media supera la soglia, scatta l'allarme globale.</li>
+              </ul>
+              <div class="warning-box">
+                ⚠️ <strong>Vincolo Tassativo</strong>: vietati attributi <code>static</code>! Stato condiviso gestito a oggetti (OOP).
+              </div>
+            </div>
+          </div>
+
+          <!-- Colonna 3: Client Monitor (Novità) -->
+          <div class="card">
+            <div class="card-title">🚨 3. Client Monitor (Supervisione)</div>
+            <div class="card-body">
+              <p>Novità dell'esercizio: postazioni di emergenza (es. Protezione Civile, Sala Operativa):</p>
+              <ul>
+                <li><strong>Connessione persistente (Long-lived)</strong>: si connette all'avvio inviando il comando <code>MONITOR</code>.</li>
+                <li><strong>Iscrizione alla lista</strong>: il server registra il canale di output del monitor in un elenco sicuro.</li>
+                <li><strong>Ricezione notifiche push</strong>: resta in ascolto passivo; appena la media sfora la soglia, riceve l'allarme istantaneamente dal server.</li>
+                <li><strong>Disconnessione robusta</strong>: se un monitor si scollega, il server ne rimuove la connessione senza crash.</li>
+              </ul>
+              <div class="danger-box">
+                🔔 <em>Notifica asincrona: i monitor vengono allertati istantaneamente ad ogni superamento!</em>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           SLIDE 2: PROTOCOLLO & GESTIONE CONCORRENZA CON SEMAFORO
+           ========================================================================= -->
+      <section class="slide" id="slide-2">
+        <div class="slide-header">
+          <div class="slide-step-tag">Fase 2 • Teoria e Protocollo</div>
+          <h1 class="slide-title">Protocollo di Rete e Mutua Esclusione con Semaforo</h1>
+          <p class="slide-desc">Come i thread gestiscono l'accesso concorrente e come si differenziano i due tipi di client.</p>
+        </div>
+
+        <div class="grid-2col">
+          <div class="card">
+            <div class="card-title">🔒 Il Semaforo e la Race Condition evitata</div>
+            <div class="card-body">
+              <p>Quando più sensori inviano dati contemporaneamente, più thread del server cercano di aggiornare le stesse variabili in memoria condivisa:</p>
+              <div style="background:#090d16; padding:10px; border-radius:6px; font-family:monospace; margin:8px 0; font-size:0.83rem;">
+                <span class="code-comment">// In assenza di sincronizzazione (RACE CONDITION!):</span><br>
+                Thread A legge: somma = 180, N = 2<br>
+                Thread B legge: somma = 180, N = 2<br>
+                Thread A scrive: somma = 270 (180+90), N = 3<br>
+                Thread B sovrascrive: somma = 275 (180+95), N = 3 <span style="color:#ef4444;">← DATO PERSO!</span>
+              </div>
+              <p><strong>Soluzione con <code>Semaphore(1, true)</code></strong>:</p>
+              <ul>
+                <li><strong>1 Permesso</strong>: mutua esclusione stretta (solo un thread per volta nella sezione critica).</li>
+                <li><strong>Fairness <code>true</code></strong>: politica FIFO per evitare la starvation tra thread concorrenti.</li>
+                <li><strong>Blocco <code>finally { semaforo.release(); }</code></strong>: garantisce il rilascio anche in caso di eccezioni a runtime.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">📡 Connessioni TCP & Registrazione Dinamica Monitor</div>
+            <div class="card-body">
+              <table style="width:100%; border-collapse:collapse; font-size:0.82rem; margin-top:4px;">
+                <thead>
+                  <tr style="border-bottom:1px solid #334155; text-align:left; color:#38bdf8;">
+                    <th style="padding:4px;">Caratteristica</th>
+                    <th style="padding:4px;">Client Sensore</th>
+                    <th style="padding:4px;">Client Monitor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid #1e293b;">
+                    <td style="padding:4px; font-weight:bold;">Tipo Connessione</td>
+                    <td style="padding:4px;">Short-lived (effimera)</td>
+                    <td style="padding:4px; color:#a855f7;">Long-lived (persistente)</td>
+                  </tr>
+                  <tr style="border-bottom:1px solid #1e293b;">
+                    <td style="padding:4px; font-weight:bold;">Handshake iniziale</td>
+                    <td style="padding:4px;"><code>SENSOR:&lt;valore&gt;</code></td>
+                    <td style="padding:4px;"><code>MONITOR</code></td>
+                  </tr>
+                  <tr style="border-bottom:1px solid #1e293b;">
+                    <td style="padding:4px; font-weight:bold;">Flusso Dati</td>
+                    <td style="padding:4px;">Client ➔ Server (push)</td>
+                    <td style="padding:4px;">Server ➔ Monitor (broadcast)</td>
+                  </tr>
+                  <tr style="border-bottom:1px solid #1e293b;">
+                    <td style="padding:4px; font-weight:bold;">Chiusura Socket</td>
+                    <td style="padding:4px;">Subito dopo ricezione ACK</td>
+                    <td style="padding:4px;">Solo allo spegnimento</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="highlight-box" style="margin-top:10px;">
+                <strong>🔄 Registrazione Dinamica (Hot-Plugging):</strong>
+                <p style="font-size:0.78rem; margin-top:3px;">
+                  I monitor si iscrivono a caldo nella <code>CopyOnWriteArrayList</code> del Server senza fermare il servizio. 
+                  Il broadcast degli allarmi avviene <strong>fuori dal Semaforo</strong> per evitare che monitor lenti blocchino i thread dei sensori periferici.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           SLIDE 3: SIMULATORE ANIMATO INTERATTIVO IN TEMPO REALE
+           ========================================================================= -->
+      <section class="slide" id="slide-3">
+        <div class="slide-header" style="margin-bottom:10px;">
+          <div class="slide-step-tag">Fase 3 • Laboratorio Interattivo</div>
+          <h1 class="slide-title">Simulatore Animato degli Scambi di Dati e Stati</h1>
+          <p class="slide-desc">Visualizza i pacchetti di rete, l'acquisizione del semaforo, il calcolo della media e la notifica istantanea ai monitor.</p>
+        </div>
+
+        <div class="sim-arena">
+          <!-- Canvas per i pacchetti volanti -->
+          <canvas id="packet-canvas"></canvas>
+
+          <!-- Toolbar di Controllo -->
+          <div class="sim-toolbar">
+            <div class="sim-toolbar-group">
+              <button class="btn btn-primary" id="btn-toggle-auto" onclick="toggleAutoSim()">▶ Avvia Loop Automatico</button>
+              <button class="btn" onclick="triggerSensorReading(false)">📤 Campionamento Normale (~85 ppm)</button>
+              <button class="btn btn-danger" onclick="triggerSensorReading(true)">🔥 Forza Allarme (100 ppm)</button>
+              <button class="btn" onclick="resetSim()">↺ Reset</button>
+            </div>
+
+            <div class="sim-toolbar-group">
+              <label style="font-size:0.85rem; color:var(--text-muted);">Velocità:</label>
+              <select id="sim-speed-select" onchange="updateSimSpeed(this.value)" style="background:#1e293b; color:#38bdf8; border:1px solid #334155; border-radius:6px; padding:4px 8px; font-size:0.85rem; font-weight:bold; cursor:pointer;">
+                <option value="0.5">🐢 Molto Lenta (0.5x)</option>
+                <option value="1.0" selected>🚶 Rallentata Didattica (1x)</option>
+                <option value="1.8">⚡ Rapida (1.8x)</option>
+              </select>
+
+              <label style="font-size:0.85rem; color:var(--text-muted); margin-left:8px;">Soglia Max Allarme:</label>
+              <input type="range" id="sim-threshold-slider" min="80" max="100" value="88" step="0.5" oninput="updateThresholdFromSlider(this.value)" style="width:110px; cursor:pointer;">
+              <span id="threshold-val-label" style="font-size:0.9rem; font-weight:800; color:#38bdf8;">88.0 ppm</span>
+            </div>
+          </div>
+
+          <!-- Tabellone a 3 colonne -->
+          <div class="sim-board">
+            
+            <!-- Colonna Sinistra: Sensori -->
+            <div class="node-col">
+              <!-- Sensore A -->
+              <div class="sim-node-card sensor" id="node-sensor-a">
+                <div class="node-header">
+                  <span>📡 Sensore A (Centro)</span>
+                  <span class="status-badge idle" id="badge-sensor-a">SLEEP (5s)</span>
+                </div>
+                <div style="font-size:0.8rem; color:#94a3b8;">
+                  Ultimo invio: <span id="val-sensor-a" style="font-weight:bold; color:#fff;">-- ppm</span>
+                </div>
+                <div style="font-size:0.75rem; color:#64748b;">Protocollo: SENSOR:&lt;val&gt; (Short-lived)</div>
+              </div>
+
+              <!-- Sensore B -->
+              <div class="sim-node-card sensor" id="node-sensor-b">
+                <div class="node-header">
+                  <span>📡 Sensore B (Industriale)</span>
+                  <span class="status-badge idle" id="badge-sensor-b">SLEEP (5s)</span>
+                </div>
+                <div style="font-size:0.8rem; color:#94a3b8;">
+                  Ultimo invio: <span id="val-sensor-b" style="font-weight:bold; color:#fff;">-- ppm</span>
+                </div>
+                <div style="font-size:0.75rem; color:#64748b;">Protocollo: SENSOR:&lt;val&gt; (Short-lived)</div>
+              </div>
+            </div>
+
+            <!-- Colonna Centro: Server Centrale -->
+            <div class="node-col">
+              <div class="sim-node-card server" id="node-server">
+                <div>
+                  <div class="node-header">
+                    <span>🖥️ Server Centrale (Porta 8080)</span>
+                    <span class="status-badge listening" id="badge-server">IN ASCOLTO</span>
+                  </div>
+
+                  <!-- Semaforo -->
+                  <div class="semaphore-display" style="margin-top:10px;">
+                    <div>
+                      <div style="font-size:0.8rem; font-weight:bold;">Semaforo di Mutua Esclusione</div>
+                      <div id="sem-desc" style="font-size:0.75rem; color:#22c55e;">Stato: LIBERO (1 Permesso disponibile)</div>
+                    </div>
+                    <div class="sem-lights">
+                      <div class="sem-light red" id="light-red"></div>
+                      <div class="sem-light green active" id="light-green"></div>
+                    </div>
+                  </div>
+
+                  <!-- Metriche Condivise -->
+                  <div class="metrics-grid">
+                    <div class="metric-cell">
+                      <div class="metric-lbl">Totale Campioni (N)</div>
+                      <div class="metric-val" id="metric-n">0</div>
+                    </div>
+                    <div class="metric-cell">
+                      <div class="metric-lbl">Somma Rilevazioni</div>
+                      <div class="metric-val" id="metric-sum">0</div>
+                    </div>
+                    <div class="metric-cell" style="grid-column: span 2;">
+                      <div class="metric-lbl">Media Cumulativa Corrente</div>
+                      <div class="metric-val" id="metric-avg">0.00 ppm</div>
+                    </div>
+                  </div>
+
+                  <!-- Barra della soglia -->
+                  <div class="gauge-container">
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+                      <span>Range Rilevazioni: 80 ppm</span>
+                      <span id="gauge-status-text" style="font-weight:bold; color:#22c55e;">Sotto Controllo</span>
+                      <span>100 ppm</span>
+                    </div>
+                    <div class="gauge-bar-bg">
+                      <div class="gauge-bar-fill" id="gauge-fill"></div>
+                      <div class="gauge-threshold-line" id="gauge-threshold-marker" style="left: 40%;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="font-size:0.78rem; color:#94a3b8; text-align:center;">
+                  Architettura OOP senza attributi <code>static</code> • Mutua Esclusione attiva
+                </div>
+              </div>
+            </div>
+
+            <!-- Colonna Destra: Monitor -->
+            <div class="node-col">
+              <!-- Monitor 1 -->
+              <div class="sim-node-card monitor" id="node-monitor-1">
+                <div class="node-header">
+                  <span>🚨 Monitor 1 (Controllo)</span>
+                  <span class="status-badge listening" id="badge-monitor-1">ASCOLTO</span>
+                </div>
+                <div style="font-size:0.78rem; color:#94a3b8;">
+                  Stato: <span id="status-text-m1" style="color:#22c55e; font-weight:bold;">Nessun Allarme</span>
+                </div>
+                <div style="font-size:0.75rem; color:#64748b;">Socket persistente registrata</div>
+              </div>
+
+              <!-- Monitor 2 -->
+              <div class="sim-node-card monitor" id="node-monitor-2">
+                <div class="node-header">
+                  <span>🚒 Monitor 2 (Protezione Civile)</span>
+                  <span class="status-badge listening" id="badge-monitor-2">ASCOLTO</span>
+                </div>
+                <div style="font-size:0.78rem; color:#94a3b8;">
+                  Stato: <span id="status-text-m2" style="color:#22c55e; font-weight:bold;">Nessun Allarme</span>
+                </div>
+                <div style="font-size:0.75rem; color:#64748b;">Socket persistente registrata</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Console Log del Simulatore -->
+          <div class="sim-log-panel" id="sim-log-box">
+            <div class="log-line">
+              <span class="log-time">[00:00:00]</span>
+              <span class="log-info">Simulatore inizializzato. Soglia impostata a 88.0 ppm. Due monitor registrati in attesa di allerte.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           SLIDE 4: ARCHITETTURA DEL CODICE JAVA SENZA STATIC
+           ========================================================================= -->
+      <section class="slide" id="slide-4">
+        <div class="slide-header">
+          <div class="slide-step-tag">Fase 4 • Codice Sorgente Java</div>
+          <h1 class="slide-title">Implementazione Java: OOP Pulita & Dependency Injection</h1>
+          <p class="slide-desc">Esame dettagliato delle classi che compongono la soluzione. Nessun attributo di classe <code>static</code>.</p>
+        </div>
+
+        <div style="display:flex; flex-direction:column; flex:1; gap:12px;">
+          <!-- Barra delle Tab dei File -->
+          <div class="code-tabs">
+            <button class="code-tab active" onclick="switchCodeTab('registro')">1. RegistroInquinamento.java</button>
+            <button class="code-tab" onclick="switchCodeTab('gestore')">2. GestoreClient.java</button>
+            <button class="code-tab" onclick="switchCodeTab('server')">3. ServerInquinamento.java</button>
+            <button class="code-tab" onclick="switchCodeTab('sensore')">4. ClientSensore.java</button>
+            <button class="code-tab" onclick="switchCodeTab('monitor')">5. ClientMonitor.java</button>
+          </div>
+
+          <!-- Pannello Codice 1: Registro -->
+          <div id="code-panel-registro" class="code-panel">
+            <pre class="code-block"><code><span class="code-comment">/**
+ * Gestisce lo stato condiviso del sistema in modo concorrente.
+ * VINCOLO SODDISFATTO: Nessun attributo statico!
+ */</span>
+<span class="code-kw">public class</span> <span class="code-type">RegistroInquinamento</span> {
+
+    <span class="code-kw">private int</span> numeroRilevazioni;
+    <span class="code-kw">private long</span> sommaRilevazioni;
+    <span class="code-kw">private double</span> mediaCorrente;
+    <span class="code-kw">private final double</span> sogliaMassima;
+
+    <span class="code-comment">// Semaforo binario FIFO per mutua esclusione</span>
+    <span class="code-kw">private final</span> <span class="code-type">Semaphore</span> semaforo;
+
+    <span class="code-comment">// Lista thread-safe per gestire le connessioni dei monitor registrati</span>
+    <span class="code-kw">private final</span> <span class="code-type">List</span>&lt;<span class="code-type">PrintWriter</span>&gt; monitorConnessi;
+
+    <span class="code-kw">public</span> <span class="code-type">RegistroInquinamento</span>(<span class="code-type">double</span> sogliaMassima) {
+        <span class="code-kw">this</span>.sogliaMassima = sogliaMassima;
+        <span class="code-kw">this</span>.numeroRilevazioni = 0;
+        <span class="code-kw">this</span>.sommaRilevazioni = 0;
+        <span class="code-kw">this</span>.mediaCorrente = 0.0;
+        <span class="code-kw">this</span>.semaforo = <span class="code-kw">new</span> <span class="code-type">Semaphore</span>(1, <span class="code-kw">true</span>);
+        <span class="code-kw">this</span>.monitorConnessi = <span class="code-kw">new</span> <span class="code-type">CopyOnWriteArrayList</span>&lt;&gt;();
+    }
+
+    <span class="code-kw">public</span> <span class="code-type">EsitoAggiornamento</span> registraRilevazione(<span class="code-type">int</span> valore) <span class="code-kw">throws</span> <span class="code-type">InterruptedException</span> {
+        <span class="code-type">boolean</span> allarmeAttivo = <span class="code-kw">false</span>;
+        <span class="code-type">double</span> mediaCalcolata = 0.0;
+        <span class="code-type">int</span> conteggioAttuale = 0;
+
+        <span class="code-comment">// SEZIONE CRITICA PROTETTA DAL SEMAFORO</span>
+        semaforo.acquire();
+        <span class="code-kw">try</span> {
+            <span class="code-kw">this</span>.numeroRilevazioni++;
+            <span class="code-kw">this</span>.sommaRilevazioni += valore;
+            <span class="code-kw">this</span>.mediaCorrente = (<span class="code-type">double</span>) <span class="code-kw">this</span>.sommaRilevazioni / <span class="code-kw">this</span>.numeroRilevazioni;
+
+            mediaCalcolata = <span class="code-kw">this</span>.mediaCorrente;
+            conteggioAttuale = <span class="code-kw">this</span>.numeroRilevazioni;
+            allarmeAttivo = (<span class="code-kw">this</span>.mediaCorrente &gt; <span class="code-kw">this</span>.sogliaMassima);
+        } <span class="code-kw">finally</span> {
+            semaforo.release(); <span class="code-comment">// Sempre rilasciato!</span>
+        }
+
+        <span class="code-type">EsitoAggiornamento</span> esito = <span class="code-kw">new</span> <span class="code-type">EsitoAggiornamento</span>(valore, conteggioAttuale, mediaCalcolata, sogliaMassima, allarmeAttivo);
+
+        <span class="code-comment">// Notifica ai monitor FUORI dal semaforo per non bloccare altri sensori</span>
+        <span class="code-kw">if</span> (allarmeAttivo) {
+            inviaNotificaAllarme(esito);
+        }
+        <span class="code-kw">return</span> esito;
+    }
+    <span class="code-comment">// ... metodi aggiungiMonitor, rimuoviMonitor, inviaNotificaAllarme ...</span>
+}</code></pre>
+          </div>
+
+          <!-- Pannello Codice 2: GestoreClient -->
+          <div id="code-panel-gestore" class="code-panel" style="display:none;">
+            <pre class="code-block"><code><span class="code-comment">// GestoreClient: discrimina SENSOR da MONITOR e gestisce il protocollo</span>
+<span class="code-kw">public class</span> <span class="code-type">GestoreClient</span> <span class="code-kw">implements</span> <span class="code-type">Runnable</span> {
+    <span class="code-kw">private final</span> <span class="code-type">Socket</span> socket;
+    <span class="code-kw">private final</span> <span class="code-type">RegistroInquinamento</span> registro;
+
+    <span class="code-kw">public</span> GestoreClient(<span class="code-type">Socket</span> socket, <span class="code-type">RegistroInquinamento</span> registro) {
+        <span class="code-kw">this</span>.socket = socket;
+        <span class="code-kw">this</span>.registro = registro;
+    }
+
+    <span class="code-kw">public void</span> run() {
+        <span class="code-kw">try</span> (
+            <span class="code-type">BufferedReader</span> in = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(socket.getInputStream()));
+            <span class="code-type">PrintWriter</span> out = <span class="code-kw">new</span> <span class="code-type">PrintWriter</span>(socket.getOutputStream(), <span class="code-kw">true</span>)
+        ) {
+            <span class="code-type">String</span> primaLinea = in.readLine();
+            <span class="code-kw">if</span> (primaLinea.startsWith(<span class="code-str">"SENSOR:"</span>)) {
+                <span class="code-type">int</span> valore = Integer.parseInt(primaLinea.substring(7).trim());
+                <span class="code-type">RegistroInquinamento.EsitoAggiornamento</span> esito = registro.registraRilevazione(valore);
+                out.println(<span class="code-str">"ACK: Ricevuto | Media="</span> + esito.getMedia() + <span class="code-str">" | Allarme="</span> + esito.isAllarme());
+                <span class="code-comment">// Connessione sensore chiusa subito al termine del blocco try</span>
+            } <span class="code-kw">else if</span> (primaLinea.equalsIgnoreCase(<span class="code-str">"MONITOR"</span>)) {
+                registro.aggiungiMonitor(out);
+                out.println(<span class="code-str">"OK: Monitor registrato"</span>);
+                <span class="code-comment">// Ciclo bloccante per mantenere aperta la connessione del monitor</span>
+                <span class="code-type">String</span> dummy;
+                <span class="code-kw">while</span> ((dummy = in.readLine()) != <span class="code-kw">null</span>) { }
+            }
+        } <span class="code-kw">catch</span> (<span class="code-type">Exception</span> e) { ... }
+    }
+}</code></pre>
+          </div>
+
+          <!-- Pannello Codice 3: ServerInquinamento -->
+          <div id="code-panel-server" class="code-panel" style="display:none;">
+            <pre class="code-block"><code><span class="code-comment">// Server Inquinamento: avvia ServerSocket e passa l'istanza condivisa a ciascun gestore</span>
+<span class="code-kw">public class</span> <span class="code-type">ServerInquinamento</span> {
+    <span class="code-kw">private final int</span> porta;
+    <span class="code-kw">private final double</span> sogliaMassima;
+    <span class="code-kw">private final</span> <span class="code-type">RegistroInquinamento</span> registro;
+
+    <span class="code-kw">public</span> ServerInquinamento(<span class="code-type">int</span> porta, <span class="code-type">double</span> sogliaMassima) {
+        <span class="code-kw">this</span>.porta = porta;
+        <span class="code-kw">this</span>.sogliaMassima = sogliaMassima;
+        <span class="code-kw">this</span>.registro = <span class="code-kw">new</span> <span class="code-type">RegistroInquinamento</span>(sogliaMassima);
+    }
+
+    <span class="code-kw">public void</span> avvia() {
+        <span class="code-kw">try</span> (<span class="code-type">ServerSocket</span> serverSocket = <span class="code-kw">new</span> <span class="code-type">ServerSocket</span>(porta)) {
+            <span class="code-kw">while</span> (<span class="code-kw">true</span>) {
+                <span class="code-type">Socket</span> clientSocket = serverSocket.accept();
+                <span class="code-kw">new</span> <span class="code-type">Thread</span>(<span class="code-kw">new</span> <span class="code-type">GestoreClient</span>(clientSocket, <span class="code-kw">this</span>.registro)).start();
+            }
+        } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) { ... }
+    }
+
+    <span class="code-kw">public static void</span> main(<span class="code-type">String</span>[] args) {
+        <span class="code-comment">// Unico metodo static ammesso dalla JVM. Richiede soglia ed avvia l'oggetto Server</span>
+        <span class="code-kw">double</span> soglia = ...; <span class="code-comment">// input da tastiera [80, 100]</span>
+        <span class="code-kw">new</span> <span class="code-type">ServerInquinamento</span>(8080, soglia).avvia();
+    }
+}</code></pre>
+          </div>
+
+          <!-- Pannello Codice 4: ClientSensore -->
+          <div id="code-panel-sensore" class="code-panel" style="display:none;">
+            <pre class="code-block"><code><span class="code-comment">// Client Sensore: loop infinito con generazione [80, 100], invio e sleep 5s</span>
+<span class="code-kw">public class</span> <span class="code-type">ClientSensore</span> {
+    <span class="code-kw">private final String</span> host;
+    <span class="code-kw">private final int</span> porta;
+    <span class="code-kw">private final Random</span> random = <span class="code-kw">new</span> <span class="code-type">Random</span>();
+
+    <span class="code-kw">public void</span> esegui() {
+        <span class="code-kw">while</span> (<span class="code-kw">true</span>) {
+            <span class="code-type">int</span> valore = 80 + random.nextInt(21); <span class="code-comment">// [80..100]</span>
+            <span class="code-kw">try</span> (
+                <span class="code-type">Socket</span> socket = <span class="code-kw">new</span> <span class="code-type">Socket</span>(host, porta);
+                <span class="code-type">PrintWriter</span> out = <span class="code-kw">new</span> <span class="code-type">PrintWriter</span>(socket.getOutputStream(), <span class="code-kw">true</span>);
+                <span class="code-type">BufferedReader</span> in = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(socket.getInputStream()))
+            ) {
+                out.println(<span class="code-str">"SENSOR:"</span> + valore);
+                <span class="code-type">String</span> ack = in.readLine();
+                System.out.println(<span class="code-str">"Ricevuto dal server: "</span> + ack);
+            } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) { ... }
+
+            Thread.sleep(5000); <span class="code-comment">// 5 secondi di sospensione prima del nuovo ciclo</span>
+        }
+    }
+}</code></pre>
+          </div>
+
+          <!-- Pannello Codice 5: ClientMonitor -->
+          <div id="code-panel-monitor" class="code-panel" style="display:none;">
+            <pre class="code-block"><code><span class="code-comment">// Client Monitor: apre la socket, invia "MONITOR" e resta in ascolto passivo</span>
+<span class="code-kw">public class</span> <span class="code-type">ClientMonitor</span> {
+    <span class="code-kw">public void</span> avvia() {
+        <span class="code-kw">try</span> (
+            <span class="code-type">Socket</span> socket = <span class="code-kw">new</span> <span class="code-type">Socket</span>(host, porta);
+            <span class="code-type">PrintWriter</span> out = <span class="code-kw">new</span> <span class="code-type">PrintWriter</span>(socket.getOutputStream(), <span class="code-kw">true</span>);
+            <span class="code-type">BufferedReader</span> in = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(socket.getInputStream()))
+        ) {
+            out.println(<span class="code-str">"MONITOR"</span>);
+            <span class="code-type">String</span> messaggio;
+            <span class="code-kw">while</span> ((messaggio = in.readLine()) != <span class="code-kw">null</span>) {
+                <span class="code-kw">if</span> (messaggio.startsWith(<span class="code-str">"ALLARME:"</span>)) {
+                    System.out.println(<span class="code-str">"🚨🚨🚨 ATTENZIONE: "</span> + messaggio);
+                }
+            }
+        } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) { ... }
+    }
+}</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- =========================================================================
+           SLIDE 5: GUIDA AL COLLAUDO & DOMANDE DI VERIFICA
+           ========================================================================= -->
+      <section class="slide" id="slide-5">
+        <div class="slide-header">
+          <div class="slide-step-tag">Fase 5 • Testing & Valutazione</div>
+          <h1 class="slide-title">Procedura di Collaudo e Domande di Verifica</h1>
+          <p class="slide-desc">Linee guida operative per testare la concorrenza con script batch e quesiti orali/scritti per gli studenti.</p>
+        </div>
+
+        <div class="grid-2col">
+          <div class="card">
+            <div class="card-title">🧪 Script di Test Automatico a 5 Finestre</div>
+            <div class="card-body">
+              <p>Per testare l'applicazione distribuita sul computer degli studenti, è incluso lo script <code>avvia_simulazione.bat</code>:</p>
+              <ol style="padding-left:18px; margin:8px 0;">
+                <li>Avvia il terminale del <strong>Server</strong> (richiede l'inserimento della soglia, es. <code>88.5</code>).</li>
+                <li>Avvia due istanze di <strong>ClientMonitor</strong> (<em>Monitor-SalaControllo</em> e <em>Monitor-ProtezioneCivile</em>).</li>
+                <li>Avvia due istanze di <strong>ClientSensore</strong> concorrenti (<em>Sensore-Centro</em> e <em>Sensore-Industriale</em>).</li>
+              </ol>
+              <div class="highlight-box">
+                ✔️ <strong>Verifica Concorrenza</strong>: osserva i timestamp del server! Quando due sensori trasmettono nello stesso istante, il semaforo li serve in stretta sequenza senza collisioni di memoria.
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">❓ Domande per la Verifica Orale / Scritta</div>
+            <div class="card-body">
+              <div style="margin-bottom:12px;">
+                <strong style="color:#38bdf8;">1. Differenza Socket Short-lived vs Long-lived</strong>
+                <p style="font-size:0.83rem; color:#cbd5e1;">Perché per i sensori è richiesta la chiusura della socket ad ogni campionamento mentre i monitor devono mantenere la connessione aperta?</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <strong style="color:#38bdf8;">2. Il Ruolo del Semaforo</strong>
+                <p style="font-size:0.83rem; color:#cbd5e1;">Cosa potrebbe succedere al valore della media e del contatore campioni se due thread eseguissero contemporaneamente l'operazione <code>somma += valore</code> senza semaforo?</p>
+              </div>
+              <div>
+                <strong style="color:#38bdf8;">3. Architettura OOP vs Variabili Statiche</strong>
+                <p style="font-size:0.83rem; color:#cbd5e1;">Quali sono gli svantaggi di salvare le liste di socket o i semafori in campi <code>static</code> rispetto al passarli per riferimento tramite Dependency Injection?</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER NAVIGATORE -->
+    <footer class="deck-footer">
+      <div class="step-dots" id="step-dots">
+        <div class="step-dot active" onclick="goToSlide(0)"></div>
+        <div class="step-dot" onclick="goToSlide(1)"></div>
+        <div class="step-dot" onclick="goToSlide(2)"></div>
+        <div class="step-dot" onclick="goToSlide(3)"></div>
+        <div class="step-dot" onclick="goToSlide(4)"></div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:16px;">
+        <span style="font-size:0.75rem; color:#64748b;">Usa i tasti [◀ Freccia Sinistra] e [Freccia Destra ▶] o [F] per Schermo Intero</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- =========================================================================
+       SCRIPT LOGICA PRESENTAZIONE & SIMULATORE ANIMATO
+       ========================================================================= -->
+  <script>
+    // --- GESTIONE SLIDE ---
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.step-dot');
+    const indicator = document.getElementById('slide-indicator');
+
+    function updateSlideUI() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+      dots.forEach((d, idx) => {
+        d.classList.toggle('active', idx === currentSlide);
+      });
+      indicator.textContent = `${currentSlide + 1} / ${slides.length}`;
+      document.getElementById('btn-prev').disabled = (currentSlide === 0);
+      document.getElementById('btn-next').disabled = (currentSlide === slides.length - 1);
+
+      // Se entra nella slide del simulatore, aggiorna le dimensioni del canvas
+      if (currentSlide === 2) {
+        setTimeout(resizePacketCanvas, 50);
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        currentSlide++;
+        updateSlideUI();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlideUI();
+      }
+    }
+
+    function goToSlide(index) {
+      currentSlide = index;
+      updateSlideUI();
+    }
+
+    // Modalità Schermo Intero
+    function toggleFullscreen() {
+      const container = document.getElementById('deck-viewport');
+      if (!document.fullscreenElement) {
+        if (container.requestFullscreen) {
+          container.requestFullscreen();
+        } else if (container.webkitRequestFullscreen) {
+          container.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    // Tasti di scelta rapida da tastiera
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown') nextSlide();
+      if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevSlide();
+      if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+    });
+
+    // Gestione Tab Codice
+    function switchCodeTab(tabId) {
+      document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.code-panel').forEach(p => p.style.display = 'none');
+      event.target.classList.add('active');
+      document.getElementById('code-panel-' + tabId).style.display = 'block';
+    }
+
+    // --- SIMULATORE ANIMATO DINAMICO ---
+    let simState = {
+      n: 0,
+      sum: 0,
+      avg: 0.0,
+      threshold: 88.0,
+      isAuto: false,
+      autoTimer: null,
+      semaphoreBusy: false,
+      activeSensorTurn: 'A',
+      speedMultiplier: 1.0
+    };
+
+    const canvas = document.getElementById('packet-canvas');
+    const ctx = canvas.getContext('2d');
+    let packets = [];
+
+    function updateSimSpeed(val) {
+      simState.speedMultiplier = parseFloat(val);
+      addLog(`⏱ Velocità animazione impostata a ${val}x.`, 'info');
+      if (simState.isAuto) {
+        clearInterval(simState.autoTimer);
+        simState.autoTimer = setInterval(() => {
+          triggerSensorReading(false);
+        }, 7500 / simState.speedMultiplier);
+      }
+    }
+
+    function resizePacketCanvas() {
+      const arena = document.querySelector('.sim-arena');
+      if (arena) {
+        canvas.width = arena.clientWidth;
+        canvas.height = arena.clientHeight;
+      }
+    }
+    window.addEventListener('resize', resizePacketCanvas);
+
+    function updateThresholdFromSlider(val) {
+      simState.threshold = parseFloat(val);
+      document.getElementById('threshold-val-label').textContent = simState.threshold.toFixed(1) + ' ppm';
+      
+      // Calcolo posizione marker soglia (range 80 - 100)
+      const pct = ((simState.threshold - 80) / 20) * 100;
+      document.getElementById('gauge-threshold-marker').style.left = pct + '%';
+      
+      // Ricalcola stato allarme attuale
+      recalcAlarmState();
+    }
+
+    function addLog(msg, type = 'info') {
+      const logBox = document.getElementById('sim-log-box');
+      const now = new Date();
+      const timeStr = `[${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}]`;
+      
+      const div = document.createElement('div');
+      div.className = 'log-line';
+      let cls = 'log-info';
+      if (type === 'alarm') cls = 'log-alarm';
+      if (type === 'sem') cls = 'log-sem';
+
+      div.innerHTML = `<span class="log-time">${timeStr}</span> <span class="${cls}">${msg}</span>`;
+      logBox.appendChild(div);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    // Creazione ed animazione di un pacchetto di rete (rallentato per chiarezza didattica)
+    function sendPacket(startX, startY, endX, endY, label, color, onComplete) {
+      packets.push({
+        x: startX,
+        y: startY,
+        startX: startX,
+        startY: startY,
+        endX: endX,
+        endY: endY,
+        label: label,
+        color: color,
+        progress: 0,
+        speed: 0.007 * simState.speedMultiplier,
+        onComplete: onComplete
+      });
+    }
+
+    function animLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = packets.length - 1; i >= 0; i--) {
+        const p = packets[i];
+        p.progress += p.speed;
+        if (p.progress >= 1) {
+          p.progress = 1;
+          p.onComplete && p.onComplete();
+          packets.splice(i, 1);
+          continue;
+        }
+
+        p.x = p.startX + (p.endX - p.startX) * p.progress;
+        p.y = p.startY + (p.endY - p.startY) * p.progress;
+
+        // Disegna cerchio pacchetto con bagliore
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 12;
+        ctx.fill();
+
+        // Disegna etichetta del pacchetto
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowBlur = 4;
+        ctx.fillText(p.label, p.x + 12, p.y + 4);
+        ctx.restore();
+      }
+
+      requestAnimationFrame(animLoop);
+    }
+    requestAnimationFrame(animLoop);
+
+    function getNodeCenter(el) {
+      const arenaRect = document.querySelector('.sim-arena').getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      return {
+        x: (elRect.left - arenaRect.left) + elRect.width / 2,
+        y: (elRect.top - arenaRect.top) + elRect.height / 2
+      };
+    }
+
+    // Esegue un campionamento
+    function triggerSensorReading(forceAlarm = false) {
+      const sensorId = simState.activeSensorTurn;
+      simState.activeSensorTurn = (simState.activeSensorTurn === 'A') ? 'B' : 'A';
+
+      const sensorNode = document.getElementById(sensorId === 'A' ? 'node-sensor-a' : 'node-sensor-b');
+      const sensorBadge = document.getElementById(sensorId === 'A' ? 'badge-sensor-a' : 'badge-sensor-b');
+      const sensorValSpan = document.getElementById(sensorId === 'A' ? 'val-sensor-a' : 'val-sensor-b');
+      const serverNode = document.getElementById('node-server');
+
+      // Generazione valore casuale tra 80 e 100
+      let valore = 80 + Math.floor(Math.random() * 21);
+      if (forceAlarm) valore = 100; // Valore massimo per provocare allarme rapido
+
+      // Aggiorna UI Sensore: Connessione e Invio
+      sensorBadge.className = 'status-badge connecting';
+      sensorBadge.textContent = 'CONNESSIONE...';
+      sensorValSpan.textContent = valore + ' ppm';
+
+      setTimeout(() => {
+        sensorBadge.className = 'status-badge sending';
+        sensorBadge.textContent = 'INVIO DATO';
+
+        const sPos = getNodeCenter(sensorNode);
+        const srvPos = getNodeCenter(serverNode);
+
+        addLog(`📡 Sensore ${sensorId} ha aperto socket e invia SENSOR:${valore} al Server.`, 'info');
+
+        // Spedizione pacchetto animato Sensore -> Server
+        sendPacket(sPos.x, sPos.y, srvPos.x - 40, srvPos.y, `SENSOR:${valore}`, '#38bdf8', () => {
+          
+          // --- ARRIVO AL SERVER: SEZIONE CRITICA SEMAFORO ---
+          setSemaphore(true);
+          addLog(`🔒 Server: thread sensore ${sensorId} acquisisce il Semaforo. Aggiornamento contatori...`, 'sem');
+
+          setTimeout(() => {
+            // Aggiornamento contatori condivisi
+            simState.n++;
+            simState.sum += valore;
+            simState.avg = simState.sum / simState.n;
+
+            updateServerDashboardUI();
+
+            // Rilascio del semaforo
+            setSemaphore(false);
+            addLog(`🔓 Server: contatori aggiornati (Media: ${simState.avg.toFixed(2)} ppm). Semaforo rilasciato!`, 'sem');
+
+            // Risposta ACK Server -> Sensore
+            sendPacket(srvPos.x - 40, srvPos.y + 20, sPos.x, sPos.y + 20, 'ACK', '#22c55e', () => {
+              sensorBadge.className = 'status-badge idle';
+              sensorBadge.textContent = 'SLEEP (5s)';
+              addLog(`📡 Sensore ${sensorId}: ACK ricevuto. Socket chiusa. Auto-sospensione 5 sec.`, 'info');
+            });
+
+            // Controllo Allarme verso i Monitor
+            if (simState.avg > simState.threshold) {
+              triggerAlarmBroadcast();
+            } else {
+              recalcAlarmState();
+            }
+
+          }, 1800 / simState.speedMultiplier);
+
+        });
+
+      }, 700 / simState.speedMultiplier);
+    }
+
+    function setSemaphore(isBusy) {
+      simState.semaphoreBusy = isBusy;
+      const lightRed = document.getElementById('light-red');
+      const lightGreen = document.getElementById('light-green');
+      const semDesc = document.getElementById('sem-desc');
+
+      if (isBusy) {
+        lightRed.classList.add('active');
+        lightGreen.classList.remove('active');
+        semDesc.textContent = 'Stato: OCCUPATO (Sezione Critica in corso)';
+        semDesc.style.color = '#ef4444';
+      } else {
+        lightRed.classList.remove('active');
+        lightGreen.classList.add('active');
+        semDesc.textContent = 'Stato: LIBERO (1 Permesso disponibile)';
+        semDesc.style.color = '#22c55e';
+      }
+    }
+
+    function updateServerDashboardUI() {
+      document.getElementById('metric-n').textContent = simState.n;
+      document.getElementById('metric-sum').textContent = simState.sum;
+      
+      const avgElem = document.getElementById('metric-avg');
+      avgElem.textContent = simState.avg.toFixed(2) + ' ppm';
+
+      // Aggiorna riempimento barra
+      const fillPct = Math.min(100, Math.max(0, ((simState.avg - 80) / 20) * 100));
+      document.getElementById('gauge-fill').style.width = fillPct + '%';
+    }
+
+    function recalcAlarmState() {
+      const isAlarm = (simState.avg > simState.threshold && simState.n > 0);
+      const serverNode = document.getElementById('node-server');
+      const serverBadge = document.getElementById('badge-server');
+      const avgElem = document.getElementById('metric-avg');
+      const gaugeText = document.getElementById('gauge-status-text');
+
+      if (isAlarm) {
+        serverNode.classList.add('alarm-active');
+        serverBadge.className = 'status-badge alarm';
+        serverBadge.textContent = 'ALLARME ATTIVO';
+        avgElem.classList.add('alarm');
+        gaugeText.textContent = 'ALLARME SUPERAMENTO!';
+        gaugeText.style.color = '#ef4444';
+      } else {
+        serverNode.classList.remove('alarm-active');
+        serverBadge.className = 'status-badge listening';
+        serverBadge.textContent = 'IN ASCOLTO';
+        avgElem.classList.remove('alarm');
+        gaugeText.textContent = 'Sotto Controllo';
+        gaugeText.style.color = '#22c55e';
+
+        // Ripristina stato monitor
+        document.getElementById('node-monitor-1').classList.remove('alarm-active');
+        document.getElementById('node-monitor-2').classList.remove('alarm-active');
+        document.getElementById('badge-monitor-1').className = 'status-badge listening';
+        document.getElementById('badge-monitor-1').textContent = 'ASCOLTO';
+        document.getElementById('badge-monitor-2').className = 'status-badge listening';
+        document.getElementById('badge-monitor-2').textContent = 'ASCOLTO';
+        document.getElementById('status-text-m1').textContent = 'Nessun Allarme';
+        document.getElementById('status-text-m1').style.color = '#22c55e';
+        document.getElementById('status-text-m2').textContent = 'Nessun Allarme';
+        document.getElementById('status-text-m2').style.color = '#22c55e';
+      }
+    }
+
+    function triggerAlarmBroadcast() {
+      recalcAlarmState();
+      addLog(`🚨 SERVER ALLARME: Media (${simState.avg.toFixed(2)}) > Soglia (${simState.threshold.toFixed(2)}). Invio broadcast ai monitor!`, 'alarm');
+
+      const srvPos = getNodeCenter(document.getElementById('node-server'));
+      const m1Pos = getNodeCenter(document.getElementById('node-monitor-1'));
+      const m2Pos = getNodeCenter(document.getElementById('node-monitor-2'));
+
+      // Pacchetto broadcast verso Monitor 1
+      sendPacket(srvPos.x + 40, srvPos.y - 30, m1Pos.x, m1Pos.y, 'ALLARME:SMOG', '#ef4444', () => {
+        const m1 = document.getElementById('node-monitor-1');
+        m1.classList.add('alarm-active');
+        document.getElementById('badge-monitor-1').className = 'status-badge alarm';
+        document.getElementById('badge-monitor-1').textContent = 'ALLARME!';
+        document.getElementById('status-text-m1').textContent = `ALLARME: ${simState.avg.toFixed(2)} ppm!`;
+        document.getElementById('status-text-m1').style.color = '#ef4444';
+        addLog(`🚨 Monitor 1 (Controllo): ALLARME RICEVUTO! Attivazione procedure emergenza.`, 'alarm');
+      });
+
+      // Pacchetto broadcast verso Monitor 2
+      sendPacket(srvPos.x + 40, srvPos.y + 30, m2Pos.x, m2Pos.y, 'ALLARME:SMOG', '#ef4444', () => {
+        const m2 = document.getElementById('node-monitor-2');
+        m2.classList.add('alarm-active');
+        document.getElementById('badge-monitor-2').className = 'status-badge alarm';
+        document.getElementById('badge-monitor-2').textContent = 'ALLARME!';
+        document.getElementById('status-text-m2').textContent = `ALLARME: ${simState.avg.toFixed(2)} ppm!`;
+        document.getElementById('status-text-m2').style.color = '#ef4444';
+        addLog(`🚨 Monitor 2 (Protezione Civile): ALLARME RICEVUTO! Dispiegamento squadre.`, 'alarm');
+      });
+    }
+
+    function toggleAutoSim() {
+      const btn = document.getElementById('btn-toggle-auto');
+      if (simState.isAuto) {
+        clearInterval(simState.autoTimer);
+        simState.isAuto = false;
+        btn.textContent = '▶ Avvia Loop Automatico';
+        btn.classList.remove('btn-danger');
+        btn.classList.add('btn-primary');
+        addLog('Loop automatico sospeso.', 'info');
+      } else {
+        simState.isAuto = true;
+        btn.textContent = '⏸ Pausa Loop';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-danger');
+        addLog('Loop automatico avviato (campionamento periodico didattico).', 'info');
+        triggerSensorReading(false);
+        simState.autoTimer = setInterval(() => {
+          triggerSensorReading(false);
+        }, 7500 / simState.speedMultiplier);
+      }
+    }
+
+    function resetSim() {
+      if (simState.isAuto) toggleAutoSim();
+      simState.n = 0;
+      simState.sum = 0;
+      simState.avg = 0.0;
+      updateServerDashboardUI();
+      recalcAlarmState();
+      document.getElementById('val-sensor-a').textContent = '-- ppm';
+      document.getElementById('val-sensor-b').textContent = '-- ppm';
+      document.getElementById('badge-sensor-a').className = 'status-badge idle';
+      document.getElementById('badge-sensor-a').textContent = 'SLEEP (5s)';
+      document.getElementById('badge-sensor-b').className = 'status-badge idle';
+      document.getElementById('badge-sensor-b').textContent = 'SLEEP (5s)';
+      setSemaphore(false);
+      packets = [];
+      addLog('Simulatore resettato allo stato iniziale.', 'info');
+    }
+
+    // Inizializzazione iniziale
+    updateSlideUI();
+    updateThresholdFromSlider(88.0);
+  </script>
+</body>
+</html>
