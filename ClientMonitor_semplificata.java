@@ -16,20 +16,17 @@ public class ClientMonitor_semplificata {
     private final String host;
     private final int porta;
     private final String idMonitor;
-    private volatile boolean inAscolto;
 
     public ClientMonitor_semplificata(String host, int porta, String idMonitor) {
         this.host = host;
         this.porta = porta;
         this.idMonitor = idMonitor;
-        this.inAscolto = false;
     }
 
     /**
      * Stabilisce una connessione persistente e si mette in ascolto continuo delle notifiche.
      */
     public void avvia() {
-        this.inAscolto = true;
         System.out.println("Avvio postazione di monitoraggio [" + idMonitor + "]...");
 
         try (
@@ -45,7 +42,7 @@ public class ClientMonitor_semplificata {
 
             // Loop di ascolto continuo (la connessione rimane aperta)
             String messaggio;
-            while (inAscolto && (messaggio = in.readLine()) != null) {
+            while ((messaggio = in.readLine()) != null) {
                 if (messaggio.startsWith("ALLARME:")) {
                     stampaAllarmeEvidenziato(messaggio);
                 } else {
