@@ -59,9 +59,9 @@ public class ClientMonitor_semplificata {
 
         } catch (IOException e) {
             System.out.println("Connessione con il server interrotta: " + e.getMessage());
-        } finally {
-            System.out.println("Postazione di monitoraggio chiusa.");
         }
+
+        System.out.println("Postazione di monitoraggio chiusa.");
     }
 
     private void stampaAllarmeEvidenziato(String messaggio) {

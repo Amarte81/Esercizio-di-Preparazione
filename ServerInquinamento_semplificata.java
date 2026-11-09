@@ -112,14 +112,6 @@ public class ServerInquinamento_semplificata {
 
         } catch (IOException e) {
             System.out.println("Errore di I/O con il client " + clientInfo + ": " + e.getMessage());
-        } finally {
-            try {
-                if (!socket.isClosed()) {
-                    socket.close();
-                }
-            } catch (IOException e) {
-                System.out.println("Errore nella chiusura del socket per " + clientInfo + ": " + e.getMessage());
-            }
         }
     }
 
@@ -146,17 +138,13 @@ public class ServerInquinamento_semplificata {
 
             // --- INIZIO SEZIONE CRITICA (Mutua Esclusione col Semaforo) ---
             semaforo.acquire();
-            try {
-                this.numeroRilevazioni++;
-                this.sommaRilevazioni += valore;
-                this.mediaCorrente = (double) this.sommaRilevazioni / this.numeroRilevazioni;
-                mediaCalcolata = this.mediaCorrente;
-                conteggioAttuale = this.numeroRilevazioni;
-                allarmeAttivo = (this.mediaCorrente > this.sogliaMassima);
-            } finally {
-                // Rilascio garantito del semaforo prima di qualsiasi operazione di rete
-                semaforo.release();
-            }
+            this.numeroRilevazioni++;
+            this.sommaRilevazioni += valore;
+            this.mediaCorrente = (double) this.sommaRilevazioni / this.numeroRilevazioni;
+            mediaCalcolata = this.mediaCorrente;
+            conteggioAttuale = this.numeroRilevazioni;
+            allarmeAttivo = (this.mediaCorrente > this.sogliaMassima);
+            semaforo.release();
             // --- FINE SEZIONE CRITICA ---
 
             System.out.println(String.format("DATO RICEVUTO da %s -> Valore: %d ppm | N.Campioni: %d | Media: %.2f ppm (Soglia: %.2f)",
@@ -191,19 +179,17 @@ public class ServerInquinamento_semplificata {
         out.println(String.format("OK: Registrazione monitor completata. Soglia configurata: %.2f. In attesa di allerte...",
                 this.sogliaMassima));
 
-        try {
-            // Attesa passiva sulla connessione persistente finché il monitor resta collegato
-            String linea;
-            while ((linea = in.readLine()) != null) {
-                if (linea.equalsIgnoreCase("PING")) {
-                    out.println("PONG");
-                }
+        // Attesa passiva sulla connessione persistente finché il monitor resta collegato
+        String linea;
+        while ((linea = in.readLine()) != null) {
+            if (linea.equalsIgnoreCase("PING")) {
+                out.println("PONG");
             }
-        } finally {
-            // Deregistrazione automatica sicura della Socket alla chiusura del monitor
-            monitorConnessi.remove(socket);
-            System.out.println("MONITOR disconnesso da " + clientInfo + ". Monitor attivi rimanenti: " + monitorConnessi.size());
         }
+
+        // Deregistrazione della Socket alla chiusura del monitor
+        monitorConnessi.remove(socket);
+        System.out.println("MONITOR disconnesso da " + clientInfo + ". Monitor attivi rimanenti: " + monitorConnessi.size());
     }
 
     /**
