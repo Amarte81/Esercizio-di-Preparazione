@@ -44,10 +44,6 @@ public class ClientMonitor {
             // Invio handshake di identificazione come MONITOR
             out.println("MONITOR");
             log("Messaggio di registrazione 'MONITOR' inviato. Connessione stabilita con " + host + ":" + porta);
-
-            // Lettura del messaggio di conferma iniziale
-            String conferma = in.readLine();
-            log("Stato server: " + conferma);
             log("In ascolto permanente degli eventi di allarme...");
             System.out.println("------------------------------------------------------------");
 

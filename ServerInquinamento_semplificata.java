@@ -176,9 +176,6 @@ public class ServerInquinamento_semplificata {
         monitorConnessi.add(socket);
         System.out.println("Nuovo MONITOR collegato da " + clientInfo + ". Monitor attivi totali: " + monitorConnessi.size());
 
-        out.println(String.format("OK: Registrazione monitor completata. Soglia configurata: %.2f. In attesa di allerte...",
-                this.sogliaMassima));
-
         // Attesa passiva sulla connessione persistente finché il monitor resta collegato
         String linea;
         while ((linea = in.readLine()) != null) {
