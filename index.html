@@ -319,6 +319,91 @@
     .code-str { color: #34d399; }
     .code-comment { color: #64748b; font-style: italic; }
     .code-var { color: #fbbf24; }
+    /* Metodi interattivi ServerInquinamento_semplificata */
+    .method-chip {
+      font-size: 0.74rem;
+      background: #1e293b;
+      color: #38bdf8;
+      border: 1px solid #334155;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      user-select: none;
+    }
+    .method-chip:hover {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.35);
+    }
+    .method-chip:active {
+      transform: translateY(0);
+    }
+    .method-chip.accent-purple {
+      color: #c084fc;
+      border-color: #6b21a8;
+    }
+    .method-chip.accent-purple:hover {
+      background: #9333ea;
+      color: #ffffff;
+      border-color: #c084fc;
+      box-shadow: 0 4px 12px rgba(192, 132, 252, 0.35);
+    }
+    .method-chip.accent-red {
+      color: #f87171;
+      border-color: #991b1b;
+    }
+    .method-chip.accent-red:hover {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #f87171;
+      box-shadow: 0 4px 12px rgba(248, 113, 113, 0.35);
+    }
+    .method-chip.accent-green {
+      color: #4ade80;
+      border-color: #166534;
+    }
+    .method-chip.accent-green:hover {
+      background: #16a34a;
+      color: #ffffff;
+      border-color: #4ade80;
+      box-shadow: 0 4px 12px rgba(74, 222, 128, 0.35);
+    }
+
+    .method-link {
+      color: #38bdf8;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-block;
+    }
+    .method-link:hover {
+      color: #bae6fd;
+      text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+      transform: translateX(2px);
+    }
+
+    .code-anchor {
+      display: block;
+      transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+      border-radius: 4px;
+      padding: 3px 6px;
+      margin: 2px -6px;
+    }
+    .code-anchor-highlight {
+      background: rgba(56, 189, 248, 0.28) !important;
+      border-left: 4px solid #38bdf8 !important;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.55);
+    }
+
 
     /* Barra Navigazione Inferiore */
     footer.deck-footer {
@@ -932,85 +1017,106 @@
       </section>
 
       <!-- =========================================================================
-           SLIDE 4: ARCHITETTURA DEL CODICE JAVA A 3 CLASSI SENZA STATIC
+           SLIDE 4: ARCHITETTURA DEL CODICE JAVA A 3 CLASSI (VERSIONI SEMPLIFICATE)
            ========================================================================= -->
       <section class="slide" id="slide-4">
         <div class="slide-header">
-          <div class="slide-step-tag">Fase 4 • Codice Sorgente Java (3 Classi)</div>
-          <h1 class="slide-title">Architettura Compatta a 3 Classi: Zero Attributi <code>static</code></h1>
-          <p class="slide-desc">Soluzione completa in sole 3 classi (<code>ServerInquinamento</code>, <code>ClientSensore</code>, <code>ClientMonitor</code>) usando <code>BufferedReader</code> e attributi d'istanza.</p>
+          <div class="slide-step-tag">Fase 4 • Codice Sorgente Didattico Semplificato</div>
+          <h1 class="slide-title">Architettura Compatta a 3 Classi: Versioni Semplificate</h1>
+          <p class="slide-desc">Soluzione didattica completa in sole 3 classi (<code>ServerInquinamento_semplificata</code>, <code>ClientSensore_semplificata</code>, <code>ClientMonitor_semplificata</code>) con <strong>zero attributi <code>static</code></strong> e <code>BufferedReader</code>.</p>
         </div>
 
-        <div style="display:flex; flex-direction:column; flex:1; gap:12px;">
+        <div style="display:flex; flex-direction:column; flex:1; gap:10px;">
           <!-- Barra delle Tab dei File -->
           <div class="code-tabs">
-            <button class="code-tab active" onclick="switchCodeTab('server')">1. ServerInquinamento.java (Server + Stato + Semaforo)</button>
-            <button class="code-tab" onclick="switchCodeTab('sensore')">2. ClientSensore.java (Centralina)</button>
-            <button class="code-tab" onclick="switchCodeTab('monitor')">3. ClientMonitor.java (Monitor)</button>
-            <button class="code-tab" onclick="switchCodeTab('focus-monitor')" style="color:#c084fc; border-color:rgba(192,132,252,0.4); font-weight:700;">🔍 4. Focus: Registrazione Dinamica Monitor</button>
+            <button class="code-tab active" onclick="switchCodeTab('server', this)">1. ServerInquinamento_semplificata.java (Server + Stato + Semaforo)</button>
+            <button class="code-tab" onclick="switchCodeTab('sensore', this)">2. ClientSensore_semplificata.java (Centralina)</button>
+            <button class="code-tab" onclick="switchCodeTab('monitor', this)">3. ClientMonitor_semplificata.java (Monitor)</button>
+            <button class="code-tab" onclick="switchCodeTab('focus-monitor', this)" style="color:#c084fc; border-color:rgba(192,132,252,0.4); font-weight:700;">🔍 4. Focus: Registrazione Dinamica Monitor</button>
           </div>
 
-          <!-- Pannello Codice 1: ServerInquinamento -->
+          <!-- Pannello Codice 1: ServerInquinamento_semplificata -->
           <div id="code-panel-server" class="code-panel">
-            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px;">
-              <span style="font-size:0.75rem; background:#1e293b; color:#38bdf8; border:1px solid #334155; padding:2px 8px; border-radius:4px; font-weight:600;">1. Costruttore & Campi</span>
-              <span style="font-size:0.75rem; background:#1e293b; color:#38bdf8; border:1px solid #334155; padding:2px 8px; border-radius:4px; font-weight:600;">2. avvia()</span>
-              <span style="font-size:0.75rem; background:#1e293b; color:#38bdf8; border:1px solid #334155; padding:2px 8px; border-radius:4px; font-weight:600;">3. gestisciConnessione()</span>
-              <span style="font-size:0.75rem; background:#1e293b; color:#38bdf8; border:1px solid #334155; padding:2px 8px; border-radius:4px; font-weight:600;">4. gestisciSensore()</span>
-              <span style="font-size:0.75rem; background:#1e293b; color:#c084fc; border:1px solid #a855f7; padding:2px 8px; border-radius:4px; font-weight:600;">5. gestisciMonitor()</span>
-              <span style="font-size:0.75rem; background:#1e293b; color:#f87171; border:1px solid #ef4444; padding:2px 8px; border-radius:4px; font-weight:600;">6. inviaNotificaAllarme()</span>
-              <span style="font-size:0.75rem; background:#1e293b; color:#94a3b8; border:1px solid #334155; padding:2px 8px; border-radius:4px; font-weight:600;">7. log()</span>
-              <span style="font-size:0.75rem; background:#1e293b; color:#4ade80; border:1px solid #22c55e; padding:2px 8px; border-radius:4px; font-weight:600;">8. main()</span>
+            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; align-items:center;">
+              <span style="font-size:0.75rem; color:#94a3b8; font-weight:600; margin-right:4px;">📍 Salta al metodo:</span>
+              <button type="button" class="method-chip" onclick="scrollToMethod('method-costruttore')">1. Costruttore & Campi</button>
+              <button type="button" class="method-chip" onclick="scrollToMethod('method-avvia')">2. avvia()</button>
+              <button type="button" class="method-chip" onclick="scrollToMethod('method-gestisciConnessione')">3. gestisciConnessione()</button>
+              <button type="button" class="method-chip" onclick="scrollToMethod('method-gestisciSensore')">4. gestisciSensore()</button>
+              <button type="button" class="method-chip accent-purple" onclick="scrollToMethod('method-gestisciMonitor')">5. gestisciMonitor()</button>
+              <button type="button" class="method-chip accent-red" onclick="scrollToMethod('method-inviaNotificaAllarme')">6. inviaNotificaAllarme()</button>
+              <button type="button" class="method-chip accent-green" onclick="scrollToMethod('method-main')">7. main()</button>
             </div>
-            <pre class="code-block" style="max-height:450px;"><code><span class="code-comment">/**
- * CLASSE 1: ServerInquinamento.java (Tutti i metodi del Server centrale)
- * Incapsula ServerSocket, contatori media, Semaforo e lista Monitor con ZERO variabili static!
- * Lettura da console con BufferedReader (nessun uso di Scanner).
- */</span>
-<span class="code-kw">public class</span> <span class="code-type">ServerInquinamento</span> {
 
-    <span class="code-comment">// --- ATTRIBUTI D'ISTANZA CONDIVISI (Zero static!) ---</span>
+            <pre class="code-block" id="server-code-pre" style="max-height:430px; position:relative; overflow-y:auto; scroll-behavior:smooth;"><code><span class="code-comment">/**
+ * CLASSE 1: ServerInquinamento_semplificata.java
+ * Gestisce il Server centrale, i contatori condivisi della media,
+ * il Semaforo di mutua esclusione e la lista dinamica dei Monitor.
+ *
+ * VINCOLI SODDISFATTI:
+ * - Zero attributi static (tutto incapsulato come stato d'istanza).
+ * - Nessun uso di Scanner: input con BufferedReader.
+ * - Thread concorrenti creati tramite Runnable anonimo.
+ * - Gestione robusta senza blocchi finally complessi.
+ */</span>
+<span class="code-kw">public class</span> <span class="code-type">ServerInquinamento_semplificata</span> {
+
+    <span class="code-comment">// Configurazione del server (attributi d'istanza, NON static)</span>
     <span class="code-kw">private final int</span> porta;
     <span class="code-kw">private final double</span> sogliaMassima;
-    <span class="code-kw">private volatile boolean</span> inEsecuzione;
+
+    <span class="code-comment">// Contatori condivisi tra i thread per il calcolo della media cumulativa</span>
     <span class="code-kw">private int</span> numeroRilevazioni;
     <span class="code-kw">private long</span> sommaRilevazioni;
     <span class="code-kw">private double</span> mediaCorrente;
-    <span class="code-kw">private final</span> <span class="code-type">Semaphore</span> semaforo;
-    <span class="code-kw">private final</span> <span class="code-type">List</span>&lt;<span class="code-type">PrintWriter</span>&gt; monitorConnessi;
-    <span class="code-kw">private final</span> <span class="code-type">DateTimeFormatter</span> timeFormatter;
 
-    <span class="code-comment">// --- 1. COSTRUTTORE: Inizializza lo stato, il semaforo FIFO e la lista thread-safe ---</span>
-    <span class="code-kw">public</span> ServerInquinamento(<span class="code-type">int</span> porta, <span class="code-type">double</span> sogliaMassima) {
+    <span class="code-comment">// Semaforo binario (1 permesso) con politica FIFO per la mutua esclusione</span>
+    <span class="code-kw">private final</span> <span class="code-type">Semaphore</span> semaforo;
+
+    <span class="code-comment">// Lista thread-safe dei Socket verso i Monitor collegati dinamicamente</span>
+    <span class="code-kw">private final</span> <span class="code-type">List</span>&lt;<span class="code-type">Socket</span>&gt; monitorConnessi;
+
+<span id="method-costruttore" class="code-anchor">    <span class="code-comment">// --- 1. COSTRUTTORE: Inizializza contatori d'istanza, Semaforo FIFO e CopyOnWriteArrayList ---</span>
+    <span class="code-kw">public</span> ServerInquinamento_semplificata(<span class="code-type">int</span> porta, <span class="code-type">double</span> sogliaMassima) {
         <span class="code-kw">this</span>.porta = porta;
         <span class="code-kw">this</span>.sogliaMassima = sogliaMassima;
-        <span class="code-kw">this</span>.inEsecuzione = <span class="code-kw">false</span>;
         <span class="code-kw">this</span>.numeroRilevazioni = 0;
         <span class="code-kw">this</span>.sommaRilevazioni = 0;
         <span class="code-kw">this</span>.mediaCorrente = 0.0;
-        <span class="code-kw">this</span>.semaforo = <span class="code-kw">new</span> <span class="code-type">Semaphore</span>(1, <span class="code-kw">true</span>); <span class="code-comment">// 1 permesso con politica FIFO per evitare starvation</span>
+        <span class="code-kw">this</span>.semaforo = <span class="code-kw">new</span> <span class="code-type">Semaphore</span>(1, <span class="code-kw">true</span>);
         <span class="code-kw">this</span>.monitorConnessi = <span class="code-kw">new</span> <span class="code-type">CopyOnWriteArrayList</span>&lt;&gt;();
-        <span class="code-kw">this</span>.timeFormatter = DateTimeFormatter.ofPattern(<span class="code-str">"HH:mm:ss.SSS"</span>);
-    }
+    }</span>
 
-    <span class="code-comment">// --- 2. avvia(): Avvia la ServerSocket e accetta connessioni concorrenti ---</span>
+<span id="method-avvia" class="code-anchor">    <span class="code-comment">// --- 2. avvia(): Loop infinito ServerSocket.accept() con Thread anonimi concorrenti ---</span>
     <span class="code-kw">public void</span> avvia() {
-        <span class="code-kw">this</span>.inEsecuzione = <span class="code-kw">true</span>;
-        System.out.println(<span class="code-str">"SERVER INQUINAMENTO AVVIATO su porta: "</span> + porta);
+        System.out.println(<span class="code-str">"================================================="</span>);
+        System.out.println(<span class="code-str">"   SERVER INQUINAMENTO ATMOSFERICO AVVIATO       "</span>);
+        System.out.println(<span class="code-str">"   Porta: "</span> + porta + <span class="code-str">" | Soglia allarme: "</span> + sogliaMassima + <span class="code-str">" ppm"</span>);
+        System.out.println(<span class="code-str">"================================================="</span>);
+
         <span class="code-kw">try</span> (<span class="code-type">ServerSocket</span> serverSocket = <span class="code-kw">new</span> <span class="code-type">ServerSocket</span>(porta)) {
-            <span class="code-kw">while</span> (inEsecuzione) {
+            <span class="code-kw">while</span> (<span class="code-kw">true</span>) {
+                <span class="code-comment">// Attesa bloccante di una nuova connessione da Sensore o Monitor</span>
                 <span class="code-type">Socket</span> socketClient = serverSocket.accept();
-                <span class="code-comment">// Ogni connessione viene delegata a un thread concorrente che opera sull'istanza corrente ('this')</span>
-                <span class="code-kw">new</span> <span class="code-type">Thread</span>(() -&gt; gestisciConnessione(socketClient)).start();
+
+                <span class="code-comment">// Avvio di un thread concorrente con classe anonima Runnable</span>
+                <span class="code-type">Thread</span> threadClient = <span class="code-kw">new</span> <span class="code-type">Thread</span>(<span class="code-kw">new</span> <span class="code-type">Runnable</span>() {
+                    <span class="code-kw">@Override</span>
+                    <span class="code-kw">public void</span> run() {
+                        gestisciConnessione(socketClient);
+                    }
+                });
+                threadClient.start();
             }
         } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) {
-            System.err.println(<span class="code-str">"Errore nel ServerSocket: "</span> + e.getMessage());
+            System.out.println(<span class="code-str">"Errore nel ServerSocket: "</span> + e.getMessage());
         }
-    }
+    }</span>
 
-    <span class="code-comment">// --- 3. gestisciConnessione(): Handshake iniziale e smistamento tra SENSOR e MONITOR ---</span>
+<span id="method-gestisciConnessione" class="code-anchor">    <span class="code-comment">// --- 3. gestisciConnessione(): Handshake del primo messaggio ("SENSOR" vs "MONITOR") ---</span>
     <span class="code-kw">private void</span> gestisciConnessione(<span class="code-type">Socket</span> socket) {
         <span class="code-type">String</span> clientInfo = socket.getRemoteSocketAddress().toString();
+
         <span class="code-kw">try</span> (
             <span class="code-type">BufferedReader</span> in = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(socket.getInputStream()));
             <span class="code-type">PrintWriter</span> out = <span class="code-kw">new</span> <span class="code-type">PrintWriter</span>(socket.getOutputStream(), <span class="code-kw">true</span>)
@@ -1019,26 +1125,32 @@
             <span class="code-kw">if</span> (primaLinea == null) <span class="code-kw">return</span>;
             primaLinea = primaLinea.trim();
 
-            <span class="code-kw">if</span> (primaLinea.startsWith(<span class="code-str">"SENSOR:"</span>)) {
-                gestisciSensore(primaLinea, out, clientInfo);
+            <span class="code-kw">if</span> (primaLinea.equalsIgnoreCase(<span class="code-str">"SENSOR"</span>)) {
+                <span class="code-comment">// Ricezione del secondo messaggio con il dato rilevato</span>
+                <span class="code-type">String</span> secondaLinea = in.readLine();
+                gestisciSensore(secondaLinea, out, clientInfo);
             } <span class="code-kw">else if</span> (primaLinea.equalsIgnoreCase(<span class="code-str">"MONITOR"</span>)) {
-                gestisciMonitor(in, out, clientInfo);
+                <span class="code-comment">// Connessione persistente: passaggio diretto della Socket</span>
+                gestisciMonitor(socket, in, out, clientInfo);
             } <span class="code-kw">else</span> {
-                out.println(<span class="code-str">"ERRORE: Protocollo sconosciuto. Invia 'SENSOR:&lt;valore&gt;' o 'MONITOR'"</span>);
+                out.println(<span class="code-str">"ERRORE: Invia 'SENSOR' seguito dal valore, oppure 'MONITOR'"</span>);
             }
         } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) {
-            log(<span class="code-str">"Errore I/O con "</span> + clientInfo + <span class="code-str">": "</span> + e.getMessage());
-        } <span class="code-kw">finally</span> {
-            <span class="code-kw">try</span> { <span class="code-kw">if</span> (!socket.isClosed()) socket.close(); } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) { }
+            System.out.println(<span class="code-str">"Errore I/O con client "</span> + clientInfo + <span class="code-str">": "</span> + e.getMessage());
         }
-    }
+    }</span>
 
-    <span class="code-comment">// --- 4. gestisciSensore(): Sezione critica col Semaforo, calcolo media cumulativa e ACK ---</span>
-    <span class="code-kw">private void</span> gestisciSensore(<span class="code-type">String</span> linea, <span class="code-type">PrintWriter</span> out, <span class="code-type">String</span> clientInfo) {
+<span id="method-gestisciSensore" class="code-anchor">    <span class="code-comment">// --- 4. gestisciSensore(): Sezione critica col Semaforo, media cumulativa e notifica fuori dal lock ---</span>
+    <span class="code-kw">private void</span> gestisciSensore(<span class="code-type">String</span> valoreStr, <span class="code-type">PrintWriter</span> out, <span class="code-type">String</span> clientInfo) {
+        <span class="code-kw">if</span> (valoreStr == null) {
+            out.println(<span class="code-str">"ERRORE: Valore del sensore mancante."</span>);
+            <span class="code-kw">return</span>;
+        }
+
         <span class="code-kw">try</span> {
-            <span class="code-type">int</span> valore = Integer.parseInt(linea.substring(7).trim());
+            <span class="code-type">int</span> valore = Integer.parseInt(valoreStr.trim());
             <span class="code-kw">if</span> (valore &lt; 80 || valore &gt; 100) {
-                out.println(<span class="code-str">"ERRORE: Valore fuori dal range consentito [80, 100]"</span>);
+                out.println(<span class="code-str">"ERRORE: Valore fuori dal range [80, 100]"</span>);
                 <span class="code-kw">return</span>;
             }
 
@@ -1046,87 +1158,81 @@
             <span class="code-type">int</span> conteggioAttuale;
             <span class="code-type">boolean</span> allarmeAttivo;
 
-            <span class="code-comment">// >>> INIZIO SEZIONE CRITICA (Semaforo Binario di Mutua Esclusione) <<<</span>
+            <span class="code-comment">// >>> SEZIONE CRITICA CON MUTUA ESCLUSIONE (Semaforo) <<<</span>
             semaforo.acquire();
-            <span class="code-kw">try</span> {
-                <span class="code-kw">this</span>.numeroRilevazioni++;
-                <span class="code-kw">this</span>.sommaRilevazioni += valore;
-                <span class="code-kw">this</span>.mediaCorrente = (<span class="code-type">double</span>) <span class="code-kw">this</span>.sommaRilevazioni / <span class="code-kw">this</span>.numeroRilevazioni;
-
-                mediaCalcolata = <span class="code-kw">this</span>.mediaCorrente;
-                conteggioAttuale = <span class="code-kw">this</span>.numeroRilevazioni;
-                allarmeAttivo = (<span class="code-kw">this</span>.mediaCorrente &gt; <span class="code-kw">this</span>.sogliaMassima);
-            } <span class="code-kw">finally</span> {
-                semaforo.release(); <span class="code-comment">// Rilascio garantito nel blocco finally prima delle comunicazioni di rete</span>
-            }
+            <span class="code-kw">this</span>.numeroRilevazioni++;
+            <span class="code-kw">this</span>.sommaRilevazioni += valore;
+            <span class="code-kw">this</span>.mediaCorrente = (<span class="code-type">double</span>) <span class="code-kw">this</span>.sommaRilevazioni / <span class="code-kw">this</span>.numeroRilevazioni;
+            mediaCalcolata = <span class="code-kw">this</span>.mediaCorrente;
+            conteggioAttuale = <span class="code-kw">this</span>.numeroRilevazioni;
+            allarmeAttivo = (<span class="code-kw">this</span>.mediaCorrente &gt; <span class="code-kw">this</span>.sogliaMassima);
+            semaforo.release();
             <span class="code-comment">// >>> FINE SEZIONE CRITICA <<<</span>
 
-            log(String.format(<span class="code-str">"DATO RICEVUTO da %s -&gt; Valore: %d ppm | N: %d | Media: %.2f (Soglia: %.2f)"</span>,
+            System.out.println(String.format(<span class="code-str">"DATO da %s -&gt; Valore: %d | N: %d | Media: %.2f (Soglia: %.2f)"</span>,
                     clientInfo, valore, conteggioAttuale, mediaCalcolata, <span class="code-kw">this</span>.sogliaMassima));
 
-            <span class="code-comment">// Broadcast ai Monitor eseguito FUORI dal semaforo per non rallentare gli altri sensori</span>
+            <span class="code-comment">// Broadcast ai Monitor eseguito FUORI dal semaforo per non bloccare altri sensori</span>
             <span class="code-kw">if</span> (allarmeAttivo) {
-                log(String.format(<span class="code-str">"!!! ALLARME ATTIVO !!! Media (%.2f) &gt; Soglia (%.2f). Notifica monitor..."</span>,
-                        mediaCalcolata, <span class="code-kw">this</span>.sogliaMassima));
+                System.out.println(String.format(<span class="code-str">"!!! ALLARME ATTIVO !!! Media (%.2f) &gt; Soglia (%.2f). Monitor: %d"</span>,
+                        mediaCalcolata, <span class="code-kw">this</span>.sogliaMassima, monitorConnessi.size()));
                 inviaNotificaAllarme(valore, conteggioAttuale, mediaCalcolata);
             }
 
             out.println(String.format(<span class="code-str">"ACK: Rilevazione registrata | Media: %.2f | Allarme: %b"</span>,
                     mediaCalcolata, allarmeAttivo));
 
-        } <span class="code-kw">catch</span> (<span class="code-type">Exception</span> e) {
-            out.println(<span class="code-str">"ERRORE: "</span> + e.getMessage());
+        } <span class="code-kw">catch</span> (<span class="code-type">NumberFormatException</span> e) {
+            out.println(<span class="code-str">"ERRORE: Formato numerico non valido."</span>);
+        } <span class="code-kw">catch</span> (<span class="code-type">InterruptedException</span> e) {
+            Thread.currentThread().interrupt();
+            out.println(<span class="code-str">"ERRORE: Elaborazione interrotta sul server."</span>);
         }
-    }
+    }</span>
 
-    <span class="code-comment">// --- 5. gestisciMonitor(): Registrazione dinamica su CopyOnWriteArrayList e ascolto persistente ---</span>
-    <span class="code-kw">private void</span> gestisciMonitor(<span class="code-type">BufferedReader</span> in, <span class="code-type">PrintWriter</span> out, <span class="code-type">String</span> clientInfo) <span class="code-kw">throws</span> <span class="code-type">IOException</span> {
-        monitorConnessi.add(out); <span class="code-comment">// Iscrizione thread-safe alla lista dinamica</span>
-        log(<span class="code-str">"Nuovo MONITOR collegato da "</span> + clientInfo + <span class="code-str">". Monitor attivi: "</span> + monitorConnessi.size());
-        out.println(String.format(<span class="code-str">"OK: Registrazione monitor completata. Soglia: %.2f. In attesa di allerte..."</span>,
-                <span class="code-kw">this</span>.sogliaMassima));
+<span id="method-gestisciMonitor" class="code-anchor">    <span class="code-comment">// --- 5. gestisciMonitor(): Registrazione Socket del Monitor e ascolto persistente ---</span>
+    <span class="code-kw">private void</span> gestisciMonitor(<span class="code-type">Socket</span> socket, <span class="code-type">BufferedReader</span> in, <span class="code-type">PrintWriter</span> out, <span class="code-type">String</span> clientInfo) <span class="code-kw">throws</span> <span class="code-type">IOException</span> {
+        monitorConnessi.add(socket);
+        System.out.println(<span class="code-str">"Nuovo MONITOR collegato da "</span> + clientInfo + <span class="code-str">". Monitor attivi: "</span> + monitorConnessi.size());
 
-        <span class="code-kw">try</span> {
-            <span class="code-type">String</span> linea;
-            <span class="code-kw">while</span> ((linea = in.readLine()) != null) {
-                <span class="code-kw">if</span> (linea.equalsIgnoreCase(<span class="code-str">"PING"</span>)) out.println(<span class="code-str">"PONG"</span>);
+        <span class="code-comment">// Attesa passiva sulla connessione persistente</span>
+        <span class="code-type">String</span> linea;
+        <span class="code-kw">while</span> ((linea = in.readLine()) != null) {
+            <span class="code-kw">if</span> (linea.equalsIgnoreCase(<span class="code-str">"PING"</span>)) {
+                out.println(<span class="code-str">"PONG"</span>);
             }
-        } <span class="code-kw">finally</span> {
-            monitorConnessi.remove(out); <span class="code-comment">// Deregistrazione automatica sicura alla chiusura del socket</span>
-            log(<span class="code-str">"MONITOR disconnesso da "</span> + clientInfo + <span class="code-str">". Monitor rimanenti: "</span> + monitorConnessi.size());
         }
-    }
 
-    <span class="code-comment">// --- 6. inviaNotificaAllarme(): Broadcast push ai Monitor con rimozione preventiva in caso di errore ---</span>
+        <span class="code-comment">// Deregistrazione automatica della Socket alla disconnessione</span>
+        monitorConnessi.remove(socket);
+        System.out.println(<span class="code-str">"MONITOR disconnesso da "</span> + clientInfo + <span class="code-str">". Rimanenti: "</span> + monitorConnessi.size());
+    }</span>
+
+<span id="method-inviaNotificaAllarme" class="code-anchor">    <span class="code-comment">// --- 6. inviaNotificaAllarme(): Broadcast push ai Monitor con gestione delle disconnessioni ---</span>
     <span class="code-kw">private void</span> inviaNotificaAllarme(<span class="code-type">int</span> ultimoValore, <span class="code-type">int</span> numeroCampioni, <span class="code-type">double</span> media) {
         <span class="code-type">String</span> messaggioAllarme = String.format(
                 <span class="code-str">"ALLARME: Media=%.2f ppm &gt; Soglia=%.2f ppm (Campione: %d | Totale: %d)"</span>,
                 media, <span class="code-kw">this</span>.sogliaMassima, ultimoValore, numeroCampioni);
 
-        <span class="code-kw">for</span> (<span class="code-type">PrintWriter</span> outMonitor : monitorConnessi) {
+        <span class="code-kw">for</span> (<span class="code-type">Socket</span> socketMonitor : monitorConnessi) {
             <span class="code-kw">try</span> {
+                <span class="code-type">PrintWriter</span> outMonitor = <span class="code-kw">new</span> <span class="code-type">PrintWriter</span>(socketMonitor.getOutputStream(), <span class="code-kw">true</span>);
                 outMonitor.println(messaggioAllarme);
-                outMonitor.flush();
-            } <span class="code-kw">catch</span> (<span class="code-type">Exception</span> e) {
-                monitorConnessi.remove(outMonitor); <span class="code-comment">// Pulizia immediata dei canali interrotti</span>
+            } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) {
+                monitorConnessi.remove(socketMonitor);
             }
         }
-    }
+    }</span>
 
-    <span class="code-comment">// --- 7. log(): Stampa a console con timestamp e identificativo del thread concorrente ---</span>
-    <span class="code-kw">private void</span> log(<span class="code-type">String</span> messaggio) {
-        <span class="code-type">String</span> timestamp = LocalTime.now().format(timeFormatter);
-        System.out.println(<span class="code-str">"["</span> + timestamp + <span class="code-str">"] ["</span> + Thread.currentThread().getName() + <span class="code-str">"] "</span> + messaggio);
-    }
-
-    <span class="code-comment">// --- 8. main(): Entry point - Input soglia da tastiera con BufferedReader e avvio OOP puro ---</span>
+<span id="method-main" class="code-anchor">    <span class="code-comment">// --- 7. main(): Input soglia con BufferedReader da tastiera e avvio istanza pura ---</span>
     <span class="code-kw">public static void</span> main(<span class="code-type">String</span>[] args) {
         <span class="code-type">BufferedReader</span> lettoreTastiera = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(System.in));
+        <span class="code-type">int</span> porta = 8080;
         <span class="code-type">double</span> soglia = 0.0;
 
         System.out.println(<span class="code-str">"=== CONFIGURAZIONE SERVER DI MONITORAGGIO ==="</span>);
         <span class="code-kw">while</span> (<span class="code-kw">true</span>) {
-            System.out.print(<span class="code-str">"Inserisci la soglia massima consentita di inquinante (tra 80 e 100): "</span>);
+            System.out.print(<span class="code-str">"Inserisci soglia massima consentita (tra 80 e 100): "</span>);
             <span class="code-kw">try</span> {
                 <span class="code-type">String</span> input = lettoreTastiera.readLine();
                 <span class="code-kw">if</span> (input == null) <span class="code-kw">break</span>;
@@ -1134,76 +1240,162 @@
                 <span class="code-kw">if</span> (soglia &gt;= 80.0 &amp;&amp; soglia &lt;= 100.0) <span class="code-kw">break</span>;
                 System.out.println(<span class="code-str">"Attenzione: il valore deve essere compreso tra 80.0 e 100.0!"</span>);
             } <span class="code-kw">catch</span> (<span class="code-type">NumberFormatException</span> e) {
-                System.out.println(<span class="code-str">"Valore non valido. Inserire un numero decimale (es. 88.5)."</span>);
+                System.out.println(<span class="code-str">"Valore non valido. Inserire un decimale (es. 88.5)."</span>);
             } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) {
-                System.out.println(<span class="code-str">"Errore di I/O durante la lettura da tastiera: "</span> + e.getMessage());
+                System.out.println(<span class="code-str">"Errore di I/O da tastiera: "</span> + e.getMessage());
                 <span class="code-kw">break</span>;
             }
         }
 
-        <span class="code-comment">// Creazione dell'istanza del server con stato incapsulato (zero variabili static)</span>
-        <span class="code-type">ServerInquinamento</span> server = <span class="code-kw">new</span> <span class="code-type">ServerInquinamento</span>(8080, soglia);
+        <span class="code-comment">// Creazione istanza del server (zero variabili statiche)</span>
+        <span class="code-type">ServerInquinamento_semplificata</span> server = <span class="code-kw">new</span> <span class="code-type">ServerInquinamento_semplificata</span>(porta, soglia);
         server.avvia();
-    }
+    }</span>
 }</code></pre>
-            <div class="highlight-box" style="margin-top:8px;">
-              💡 <strong>Tutti gli 8 metodi incapsulati in un'unica classe senza variabili <code>static</code>:</strong><br>
-              • <strong>1. Costruttore</strong>: Inizializza contatori d'istanza, <code>Semaphore(1, true)</code> FIFO e lista <code>CopyOnWriteArrayList</code>.<br>
-              • <strong>2. <code>avvia()</code></strong>: Loop infinito di <code>ServerSocket.accept()</code> che crea thread concorrenti tramite lambda: <code>new Thread(() -&gt; gestisciConnessione(socketClient)).start()</code>.<br>
-              • <strong>3. <code>gestisciConnessione()</code></strong>: Legge il primo messaggio e smista verso <code>gestisciSensore()</code> (short-lived) o <code>gestisciMonitor()</code> (long-lived).<br>
-              • <strong>4. <code>gestisciSensore()</code></strong>: Acquisisce il semaforo, aggiorna i contatori in sezione critica e notifica i monitor <em>all'esterno</em> del semaforo.<br>
-              • <strong>5. <code>gestisciMonitor()</code></strong>: Registra il monitor e mantiene aperta la socket passiva fino alla disconnessione, gestendo la deregistrazione nel <code>finally</code>.<br>
-              • <strong>6. <code>inviaNotificaAllarme()</code></strong>: Ciclo broadcast lock-free con rimozione automatica immediata dei socket non più raggiungibili.<br>
-              • <strong>7. <code>log()</code></strong>: Traccia a video gli eventi con orario e nome del thread concorrente.<br>
-              • <strong>8. <code>main()</code></strong>: Lettura soglia [80..100] con <code>BufferedReader</code> (no <code>Scanner</code>) e avvio istanza <code>ServerInquinamento</code>.
+
+            <div class="highlight-box" style="margin-top:10px; background:rgba(30, 41, 59, 0.7); border-left:4px solid #38bdf8;">
+              💡 <strong style="color:#38bdf8;">Tutti i 7 metodi incapsulati in <code>ServerInquinamento_semplificata</code> (Zero <code>static</code>) — Clicca sul nome del metodo per scorrere al codice:</strong>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; font-size:0.8rem; line-height:1.4;">
+                <div>
+                  • <a href="javascript:void(0)" onclick="scrollToMethod('method-costruttore')" class="method-link">1. Costruttore & Attributi</a>: Inizializza contatori d'istanza, <code>Semaphore(1, true)</code> FIFO e la lista <code>CopyOnWriteArrayList&lt;Socket&gt;</code>.<br>
+                  • <a href="javascript:void(0)" onclick="scrollToMethod('method-avvia')" class="method-link">2. <code>avvia()</code></a>: Ciclo <code>while(true)</code> con <code>ServerSocket.accept()</code> che crea un <code>Thread</code> con <code>Runnable</code> anonimo.<br>
+                  • <a href="javascript:void(0)" onclick="scrollToMethod('method-gestisciConnessione')" class="method-link">3. <code>gestisciConnessione()</code></a>: Legge il 1° comando ("SENSOR" o "MONITOR") e smista al gestore dedicato.<br>
+                  • <a href="javascript:void(0)" onclick="scrollToMethod('method-gestisciSensore')" class="method-link">4. <code>gestisciSensore()</code></a>: Riceve il valore, acquisisce il semaforo, aggiorna media e invia l'allarme fuori dalla sezione critica.<br>
+                </div>
+                <div>
+                  • <a href="javascript:void(0)" onclick="scrollToMethod('method-gestisciMonitor')" class="method-link">5. <code>gestisciMonitor()</code></a>: Registra il socket del monitor nella lista, resta in ascolto passivo e lo deregistra alla chiusura.<br>
+                  • <a href="javascript:void(0)" onclick="scrollToMethod('method-inviaNotificaAllarme')" class="method-link">6. <code>inviaNotificaAllarme()</code></a>: Broadcast a tutte le socket dei monitor attivi (rigorosamente <em>fuori</em> dal semaforo).<br>
+                  • <a href="javascript:void(0)" onclick="scrollToMethod('method-main')" class="method-link">7. <code>main()</code></a>: Lettura soglia [80..100] da tastiera con <code>BufferedReader</code> (no <code>Scanner</code>) e avvio istanza.
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Pannello Codice 2: ClientSensore -->
+          <!-- Pannello Codice 2: ClientSensore_semplificata -->
           <div id="code-panel-sensore" class="code-panel" style="display:none;">
-            <pre class="code-block"><code><span class="code-comment">// CLASSE 2: ClientSensore (Simula le centraline periferiche con ciclo di 5s)</span>
-<span class="code-kw">public class</span> <span class="code-type">ClientSensore</span> {
+            <pre class="code-block" style="max-height:470px;"><code><span class="code-comment">/**
+ * CLASSE 2: ClientSensore_semplificata.java (Centralina Periferica)
+ * Invia "SENSOR" e dato in due messaggi distinti, riceve ACK e si sospende 5s.
+ */</span>
+<span class="code-kw">public class</span> <span class="code-type">ClientSensore_semplificata</span> {
+
     <span class="code-kw">private final String</span> host;
     <span class="code-kw">private final int</span> porta;
-    <span class="code-kw">private final Random</span> random = <span class="code-kw">new</span> <span class="code-type">Random</span>();
+    <span class="code-kw">private final String</span> idSensore;
+    <span class="code-kw">private final Random</span> random;
+    <span class="code-kw">private volatile boolean</span> attivo;
+
+    <span class="code-kw">public</span> ClientSensore_semplificata(<span class="code-type">String</span> host, <span class="code-type">int</span> porta, <span class="code-type">String</span> idSensore) {
+        <span class="code-kw">this</span>.host = host;
+        <span class="code-kw">this</span>.porta = porta;
+        <span class="code-kw">this</span>.idSensore = idSensore;
+        <span class="code-kw">this</span>.random = <span class="code-kw">new</span> <span class="code-type">Random</span>();
+        <span class="code-kw">this</span>.attivo = <span class="code-kw">true</span>;
+    }
 
     <span class="code-kw">public void</span> esegui() {
-        <span class="code-kw">while</span> (<span class="code-kw">true</span>) {
-            <span class="code-type">int</span> valore = 80 + random.nextInt(21); <span class="code-comment">// [80..100]</span>
+        System.out.println(<span class="code-str">"Centralina sensore ["</span> + idSensore + <span class="code-str">"] avviata. Target: "</span> + host + <span class="code-str">":"</span> + porta);
+
+        <span class="code-kw">while</span> (attivo) {
+            <span class="code-comment">// Genera numero random intero [80 .. 100] ppm</span>
+            <span class="code-type">int</span> concentrazione = 80 + random.nextInt(21);
+            System.out.println(<span class="code-str">"Nuovo campionamento: "</span> + concentrazione + <span class="code-str">" ppm. Apertura connessione..."</span>);
+
+            <span class="code-comment">// Connessione TCP Short-Lived</span>
             <span class="code-kw">try</span> (
                 <span class="code-type">Socket</span> socket = <span class="code-kw">new</span> <span class="code-type">Socket</span>(host, porta);
                 <span class="code-type">PrintWriter</span> out = <span class="code-kw">new</span> <span class="code-type">PrintWriter</span>(socket.getOutputStream(), <span class="code-kw">true</span>);
                 <span class="code-type">BufferedReader</span> in = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(socket.getInputStream()))
             ) {
-                out.println(<span class="code-str">"SENSOR:"</span> + valore);
-                <span class="code-type">String</span> ack = in.readLine();
-                System.out.println(<span class="code-str">"Ricevuto dal server: "</span> + ack);
-            } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) { ... }
+                <span class="code-comment">// Invio di 2 messaggi separati</span>
+                out.println(<span class="code-str">"SENSOR"</span>);
+                out.println(concentrazione);
 
-            Thread.sleep(5000); <span class="code-comment">// 5 secondi di sospensione prima del nuovo ciclo</span>
+                <span class="code-comment">// Lettura ACK dal server</span>
+                <span class="code-type">String</span> risposta = in.readLine();
+                System.out.println(<span class="code-str">"Risposta dal server: "</span> + risposta);
+
+            } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) {
+                System.out.println(<span class="code-str">"Errore di connessione verso il server: "</span> + e.getMessage());
+            }
+
+            System.out.println(<span class="code-str">"Connessione chiusa. Autosospensione per 5 secondi...\n"</span>);
+            <span class="code-kw">try</span> {
+                Thread.sleep(5000);
+            } <span class="code-kw">catch</span> (<span class="code-type">InterruptedException</span> e) {
+                Thread.currentThread().interrupt();
+                attivo = <span class="code-kw">false</span>;
+            }
         }
+    }
+
+    <span class="code-kw">public static void</span> main(<span class="code-type">String</span>[] args) {
+        <span class="code-type">String</span> host = <span class="code-str">"localhost"</span>;
+        <span class="code-type">int</span> porta = 8080;
+        <span class="code-type">String</span> id = <span class="code-str">"Sensore-Zona-"</span> + ((args.length &gt; 0) ? args[0] : <span class="code-str">"A"</span>);
+        <span class="code-kw">new</span> ClientSensore_semplificata(host, porta, id).esegui();
     }
 }</code></pre>
           </div>
 
-          <!-- Pannello Codice 3: ClientMonitor -->
+          <!-- Pannello Codice 3: ClientMonitor_semplificata -->
           <div id="code-panel-monitor" class="code-panel" style="display:none;">
-            <pre class="code-block"><code><span class="code-comment">// CLASSE 3: ClientMonitor (Apre la socket, invia "MONITOR" e resta in ascolto passivo)</span>
-<span class="code-kw">public class</span> <span class="code-type">ClientMonitor</span> {
+            <pre class="code-block" style="max-height:470px;"><code><span class="code-comment">/**
+ * CLASSE 3: ClientMonitor_semplificata.java (Postazione di Supervisione Allarmi)
+ * Connessione persistente: invia "MONITOR" e rimane in ascolto passivo continuo.
+ * Nessuna variabile superflua inAscolto: ciclo canonico while ((messaggio = in.readLine()) != null).
+ */</span>
+<span class="code-kw">public class</span> <span class="code-type">ClientMonitor_semplificata</span> {
+
+    <span class="code-kw">private final String</span> host;
+    <span class="code-kw">private final int</span> porta;
+    <span class="code-kw">private final String</span> idMonitor;
+
+    <span class="code-kw">public</span> ClientMonitor_semplificata(<span class="code-type">String</span> host, <span class="code-type">int</span> porta, <span class="code-type">String</span> idMonitor) {
+        <span class="code-kw">this</span>.host = host;
+        <span class="code-kw">this</span>.porta = porta;
+        <span class="code-kw">this</span>.idMonitor = idMonitor;
+    }
+
     <span class="code-kw">public void</span> avvia() {
+        System.out.println(<span class="code-str">"Avvio postazione di monitoraggio ["</span> + idMonitor + <span class="code-str">"]..."</span>);
+
         <span class="code-kw">try</span> (
             <span class="code-type">Socket</span> socket = <span class="code-kw">new</span> <span class="code-type">Socket</span>(host, porta);
             <span class="code-type">PrintWriter</span> out = <span class="code-kw">new</span> <span class="code-type">PrintWriter</span>(socket.getOutputStream(), <span class="code-kw">true</span>);
             <span class="code-type">BufferedReader</span> in = <span class="code-kw">new</span> <span class="code-type">BufferedReader</span>(<span class="code-kw">new</span> <span class="code-type">InputStreamReader</span>(socket.getInputStream()))
         ) {
+            <span class="code-comment">// Handshake di registrazione come MONITOR</span>
             out.println(<span class="code-str">"MONITOR"</span>);
+            System.out.println(<span class="code-str">"Registrazione 'MONITOR' inviata. Connessione stabilita con "</span> + host + <span class="code-str">":"</span> + porta);
+            System.out.println(<span class="code-str">"In ascolto permanente degli eventi di allarme..."</span>);
+            System.out.println(<span class="code-str">"------------------------------------------------------------"</span>);
+
+            <span class="code-comment">// Ciclo di ascolto continuo (la connessione rimane aperta)</span>
             <span class="code-type">String</span> messaggio;
             <span class="code-kw">while</span> ((messaggio = in.readLine()) != <span class="code-kw">null</span>) {
                 <span class="code-kw">if</span> (messaggio.startsWith(<span class="code-str">"ALLARME:"</span>)) {
-                    System.out.println(<span class="code-str">"🚨🚨🚨 ATTENZIONE: "</span> + messaggio);
+                    System.out.println(<span class="code-str">"\n************************************************************"</span>);
+                    System.out.println(<span class="code-str">" [ALLARME RILEVATO DA "</span> + idMonitor + <span class="code-str">"]"</span>);
+                    System.out.println(<span class="code-str">" &gt;&gt;&gt; "</span> + messaggio);
+                    System.out.println(<span class="code-str">"************************************************************\n"</span>);
+                } <span class="code-kw">else</span> {
+                    System.out.println(<span class="code-str">"Notifica ricevuta: "</span> + messaggio);
                 }
             }
-        } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) { ... }
+
+        } <span class="code-kw">catch</span> (<span class="code-type">IOException</span> e) {
+            System.out.println(<span class="code-str">"Connessione con il server interrotta: "</span> + e.getMessage());
+        }
+
+        System.out.println(<span class="code-str">"Postazione di monitoraggio chiusa."</span>);
+    }
+
+    <span class="code-kw">public static void</span> main(<span class="code-type">String</span>[] args) {
+        <span class="code-type">String</span> host = <span class="code-str">"localhost"</span>;
+        <span class="code-type">int</span> porta = 8080;
+        <span class="code-type">String</span> id = (args.length &gt; 0) ? args[0] : <span class="code-str">"Monitor-Centrale-1"</span>;
+        <span class="code-kw">new</span> ClientMonitor_semplificata(host, porta, id).avvia();
     }
 }</code></pre>
           </div>
@@ -1211,7 +1403,7 @@
           <!-- Pannello 4: Focus Registrazione Dinamica Monitor -->
           <div id="code-panel-focus-monitor" class="code-panel" style="display:none; overflow-y:auto; max-height:480px; padding:4px;">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-              
+
               <!-- Colonna Sinistra: Fasi del Ciclo di Vita -->
               <div class="card" style="background:#090d16; border-color:#a855f7;">
                 <div class="card-title" style="color:#c084fc;">
@@ -1220,22 +1412,19 @@
                 <div class="card-body" style="font-size:0.83rem;">
                   <ol style="padding-left:16px; margin:4px 0; display:flex; flex-direction:column; gap:8px;">
                     <li>
-                      <strong style="color:#38bdf8;">1. Handshake Iniziale:</strong> Il client apre socket su porta 8080 e invia <code>"MONITOR\n"</code>. Il server riconosce il ruolo persistente.
+                      <strong style="color:#38bdf8;">1. Handshake Iniziale:</strong> Il client apre socket su porta 8080 e invia <code>"MONITOR\n"</code>. Il server riconosce il client come monitor.
                     </li>
                     <li>
-                      <strong style="color:#38bdf8;">2. Iscrizione Thread-Safe:</strong> Lo stream <code>PrintWriter out</code> viene aggiunto a <code>this.monitorConnessi.add(out)</code> in <code>ServerInquinamento</code>.
+                      <strong style="color:#38bdf8;">2. Iscrizione Thread-Safe:</strong> La socket <code>Socket socket</code> viene aggiunta a <code>this.monitorConnessi.add(socket)</code> in <code>ServerInquinamento_semplificata</code>.
                     </li>
                     <li>
-                      <strong style="color:#38bdf8;">3. Risposta di Benvenuto:</strong> Il server comunica la soglia attiva: <code>"OK: Registrazione monitor completata. Soglia: 88.0"</code>.
+                      <strong style="color:#38bdf8;">3. Connessione Persistente (Long-Lived):</strong> Il thread del server rimane bloccato su <code>in.readLine()</code> in attesa passiva (stato WAITING a zero consumo CPU).
                     </li>
                     <li>
-                      <strong style="color:#38bdf8;">4. Connessione Persistente (Long-Lived):</strong> Il thread del server rimane bloccato su <code>in.readLine()</code> in attesa passiva (stato WAITING a zero consumo CPU).
+                      <strong style="color:#38bdf8;">4. Notifica Push Asincrona:</strong> All'allarme, il server itera sulla lista e invia il messaggio formattato direttamente all'outputStream di ogni socket connessa.
                     </li>
                     <li>
-                      <strong style="color:#38bdf8;">5. Notifica Push Asincrona:</strong> All'allarme, il server itera sulla lista e invia il messaggio formattato a tutti i monitor connessi.
-                    </li>
-                    <li>
-                      <strong style="color:#38bdf8;">6. Deregistrazione Automatica:</strong> Se il monitor cade o si chiude, il blocco <code>finally</code> esegue <code>monitorConnessi.remove(out)</code>.
+                      <strong style="color:#38bdf8;">5. Deregistrazione Automatica:</strong> Se il monitor cade o si chiude, il ciclo di lettura termina e viene eseguito <code>monitorConnessi.remove(socket)</code>.
                     </li>
                   </ol>
                 </div>
@@ -1243,7 +1432,7 @@
 
               <!-- Colonna Destra: Decisioni Architetturali Fondamentali -->
               <div style="display:flex; flex-direction:column; gap:14px;">
-                
+
                 <div class="highlight-box" style="background:rgba(168,85,247,0.1); border-left:4px solid #a855f7;">
                   <strong style="color:#c084fc; font-size:0.88rem;">🛡️ Perché CopyOnWriteArrayList invece di ArrayList?</strong>
                   <p style="font-size:0.8rem; margin-top:4px; line-height:1.45;">
@@ -1262,11 +1451,13 @@
 
                 <div class="card" style="background:#090d16; border-color:#334155; padding:10px;">
                   <span style="font-size:0.75rem; color:#94a3b8; font-family:monospace;">
-                    // Metodo privato di ServerInquinamento.java:<br>
+                    // Metodo di broadcast in ServerInquinamento_semplificata.java:<br>
                     <span class="code-kw">private void</span> inviaNotificaAllarme(<span class="code-type">int</span> val, <span class="code-type">int</span> n, <span class="code-type">double</span> media) {<br>
-                    &nbsp;&nbsp;<span class="code-kw">for</span> (PrintWriter out : monitorConnessi) {<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">try</span> { out.println(msg); out.flush(); }<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">catch</span> (Exception e) { monitorConnessi.remove(out); }<br>
+                    &nbsp;&nbsp;<span class="code-kw">for</span> (Socket socketMonitor : monitorConnessi) {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-kw">try</span> {<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PrintWriter out = <span class="code-kw">new</span> PrintWriter(socketMonitor.getOutputStream(), <span class="code-kw">true</span>);<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;out.println(messaggioAllarme);<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;} <span class="code-kw">catch</span> (IOException e) { monitorConnessi.remove(socketMonitor); }<br>
                     &nbsp;&nbsp;}<br>
                     }
                   </span>
@@ -1293,7 +1484,7 @@
           <div class="card">
             <div class="card-title">🧪 Script di Test Automatico a 4 Finestre</div>
             <div class="card-body">
-              <p>Per testare l'applicazione distribuita sul computer degli studenti, è incluso lo script <code>avvia_simulazione.bat</code>:</p>
+              <p>Per testare l'applicazione distribuita sul computer degli studenti, sono inclusi gli script <code>avvia_simulazione_semplificata.bat</code> (e <code>avvia_simulazione.bat</code>):</p>
               <ol style="padding-left:18px; margin:8px 0;">
                 <li>Avvia il terminale del <strong>Server</strong> (richiede l'inserimento della soglia, es. <code>88.5</code>).</li>
                 <li>Avvia il terminale del <strong>ClientMonitor</strong> (<em>Monitor-Centrale</em>).</li>
@@ -1426,6 +1617,34 @@
     });
 
     // Gestione Tab Codice
+    
+    // Scorrimento animato direttamente al metodo richiesto nel codice del server
+    function scrollToMethod(targetId) {
+      switchCodeTab('server');
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const targetEl = document.getElementById(targetId);
+          const preEl = document.getElementById('server-code-pre');
+          if (targetEl && preEl) {
+            const preRect = preEl.getBoundingClientRect();
+            const targetRect = targetEl.getBoundingClientRect();
+            const relativeTop = targetRect.top - preRect.top + preEl.scrollTop;
+
+            preEl.scrollTo({
+              top: Math.max(0, relativeTop - 25),
+              behavior: 'smooth'
+            });
+
+            document.querySelectorAll('.code-anchor-highlight').forEach(el => el.classList.remove('code-anchor-highlight'));
+            targetEl.classList.add('code-anchor-highlight');
+            setTimeout(() => {
+              targetEl.classList.remove('code-anchor-highlight');
+            }, 2500);
+          }
+        }, 120);
+      });
+    }
+
     function switchCodeTab(tabId, el) {
       document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.code-panel').forEach(p => p.style.display = 'none');
