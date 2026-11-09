@@ -68,8 +68,13 @@ public class ServerInquinamento_semplificata {
                 // Attesa bloccante di una nuova connessione
                 Socket socketClient = serverSocket.accept();
 
-                // Avvio di un thread concorrente che invoca gestisciConnessione
-                Thread threadClient = new Thread(() -> gestisciConnessione(socketClient));
+                // Avvio di un thread concorrente con classe anonima Runnable
+                Thread threadClient = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        gestisciConnessione(socketClient);
+                    }
+                });
                 threadClient.start();
             }
         } catch (IOException e) {
