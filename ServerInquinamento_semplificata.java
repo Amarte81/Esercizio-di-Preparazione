@@ -103,9 +103,6 @@ public class ServerInquinamento_semplificata {
                 // --- GESTIONE SENSORE: ricezione del secondo messaggio con il dato rilevato ---
                 String secondaLinea = in.readLine();
                 gestisciSensore(secondaLinea, out, clientInfo);
-            } else if (primaLinea.startsWith("SENSOR:")) {
-                // Supporto compatibile anche per formato a messaggio singolo "SENSOR:<valore>"
-                gestisciSensore(primaLinea.substring("SENSOR:".length()), out, clientInfo);
             } else if (primaLinea.equalsIgnoreCase("MONITOR")) {
                 // --- GESTIONE POSTAZIONE MONITOR (Connessione Persistente, uso diretto di Socket) ---
                 gestisciMonitor(socket, in, out, clientInfo);
