@@ -31,7 +31,6 @@ public class ServerInquinamento_semplificata {
     // Configurazione del server (attributi d'istanza, NON static)
     private final int porta;
     private final double sogliaMassima;
-    private volatile boolean inEsecuzione;
 
     // Contatori condivisi tra i thread per il calcolo della media
     private int numeroRilevazioni;
@@ -47,7 +46,6 @@ public class ServerInquinamento_semplificata {
     public ServerInquinamento_semplificata(int porta, double sogliaMassima) {
         this.porta = porta;
         this.sogliaMassima = sogliaMassima;
-        this.inEsecuzione = false;
         this.numeroRilevazioni = 0;
         this.sommaRilevazioni = 0;
         this.mediaCorrente = 0.0;
@@ -59,7 +57,6 @@ public class ServerInquinamento_semplificata {
      * Avvia il ServerSocket e resta in ascolto di connessioni da Sensori e Monitor.
      */
     public void avvia() {
-        this.inEsecuzione = true;
         System.out.println("=================================================");
         System.out.println("   SERVER INQUINAMENTO ATMOSFERICO AVVIATO       ");
         System.out.println("   Porta di ascolto: " + porta);
@@ -67,7 +64,7 @@ public class ServerInquinamento_semplificata {
         System.out.println("=================================================");
 
         try (ServerSocket serverSocket = new ServerSocket(porta)) {
-            while (inEsecuzione) {
+            while (true) {
                 // Attesa bloccante di una nuova connessione
                 Socket socketClient = serverSocket.accept();
 
