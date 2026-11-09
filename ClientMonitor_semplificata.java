@@ -44,7 +44,10 @@ public class ClientMonitor_semplificata {
             String messaggio;
             while ((messaggio = in.readLine()) != null) {
                 if (messaggio.startsWith("ALLARME:")) {
-                    stampaAllarmeEvidenziato(messaggio);
+                    System.out.println("\n************************************************************");
+                    System.out.println(" [ALLARME RILEVATO DA " + idMonitor + "]");
+                    System.out.println(" >>> " + messaggio);
+                    System.out.println("************************************************************\n");
                 } else {
                     System.out.println("Notifica ricevuta: " + messaggio);
                 }
@@ -55,13 +58,6 @@ public class ClientMonitor_semplificata {
         }
 
         System.out.println("Postazione di monitoraggio chiusa.");
-    }
-
-    private void stampaAllarmeEvidenziato(String messaggio) {
-        System.out.println("\n************************************************************");
-        System.out.println(" [ALLARME RILEVATO DA " + idMonitor + "]");
-        System.out.println(" >>> " + messaggio);
-        System.out.println("************************************************************\n");
     }
 
     public static void main(String[] args) {
